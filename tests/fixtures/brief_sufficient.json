@@ -1,0 +1,26 @@
+{
+  "session_id": "20260624-100000-abcd1234",
+  "round": 3,
+  "fields": {
+    "artifact_type":       {"value": "短视频", "evidence": "用户原话: /Users/me/video.mp4 这个短视频", "sufficient": true},
+    "artifact_locator":    {"value": "/Users/me/video.mp4", "evidence": "用户原话: /Users/me/video.mp4", "sufficient": true},
+    "target_audience":     {"value": "三线小龙虾店周边消费者", "evidence": "用户原话: 目标人群是三线小龙虾店周边消费者", "sufficient": true},
+    "key_concern":         {"value": "流失", "evidence": "用户原话: 最关心被劝退流失", "sufficient": true},
+    "distribution_intent": {"value": "mock", "evidence": "用户原话: 没真实分布数据用 mock 就行", "sufficient": true}
+  },
+  "consistency_check": {
+    "passed": true,
+    "conflicts": []
+  },
+  "boundary_ack": {
+    "no_absolute_metrics_predicted": true,
+    "no_go_no_go_decision": true,
+    "fit_fidelity_disclaimer": true,
+    "ask_dont_hallucinate": true
+  },
+  "verdict": "SUFFICIENT",
+  "next_action": {
+    "kind": "PROCEED_TO_DAG",
+    "summary_for_user": "评估对象=短视频(/Users/me/video.mp4)；目标受众=三线小龙虾店周边消费者；关心维度=流失；分布意图=mock；边界共识全部 ack。"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "session_id": "20260624-v04-prd-demo",
+  "round": 1,
+  "fields": {
+    "artifact_type": {"value": "PRD", "evidence": "用户原话: 评审这份 PRD 文档", "sufficient": true},
+    "artifact_locator": {"value": "tests/fixtures/prd_demo/prd.md", "evidence": "用户原话: tests/fixtures/prd_demo/prd.md", "sufficient": true},
+    "target_audience": {"value": "本地生活商家经营者", "evidence": "用户原话: 给本地生活商家经营者使用", "sufficient": true},
+    "key_concern": {"value": "决策建议", "evidence": "用户原话: 重点看方案要怎么决策", "sufficient": true},
+    "distribution_intent": {"value": "specified_personas", "evidence": "用户指定专家陪审员", "sufficient": true}
+  },
+  "consistency_check": {"passed": true, "conflicts": []},
+  "boundary_ack": {
+    "no_absolute_metrics_predicted": true,
+    "no_go_no_go_decision": true,
+    "fit_fidelity_disclaimer": true,
+    "ask_dont_hallucinate": true
+  },
+  "verdict": "SUFFICIENT",
+  "next_action": {
+    "kind": "PROCEED_TO_DAG",
+    "summary_for_user": "评审对象是 PRD,目标受众为本地生活商家经营者,重点产出决策路径。"
+  }
+}

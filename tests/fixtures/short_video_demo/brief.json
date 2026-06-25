@@ -1,0 +1,26 @@
+{
+  "session_id": "20260624-m3-demo",
+  "round": 3,
+  "fields": {
+    "artifact_type":       {"value": "短视频", "evidence": "用户原话: 评一下我这条小龙虾店短视频", "sufficient": true},
+    "artifact_locator":    {"value": "tests/fixtures/short_video_demo/artifact.json", "evidence": "用户原话: 路径 tests/fixtures/short_video_demo/artifact.json", "sufficient": true},
+    "target_audience":     {"value": "三线小龙虾店周边消费者", "evidence": "用户原话: 我的目标人群是三线小镇本地消费者", "sufficient": true},
+    "key_concern":         {"value": "流失", "evidence": "用户原话: 最关心他们看几秒会划走", "sufficient": true},
+    "distribution_intent": {"value": "specified_personas", "evidence": "用户原话: 我点名 consumer-bao-mom-tier2 / consumer-silver-male / consumer-bluecollar-male 三位", "sufficient": true}
+  },
+  "consistency_check": {
+    "passed": true,
+    "conflicts": []
+  },
+  "boundary_ack": {
+    "no_absolute_metrics_predicted": true,
+    "no_go_no_go_decision": true,
+    "fit_fidelity_disclaimer": true,
+    "ask_dont_hallucinate": true
+  },
+  "verdict": "SUFFICIENT",
+  "next_action": {
+    "kind": "PROCEED_TO_DAG",
+    "summary_for_user": "评估对象=短视频；目标受众=三线小龙虾店周边消费者；关心维度=流失；分布意图=specified_personas（点名宝妈/银发男/蓝领男）；边界共识全部 ack。"
+  }
+}

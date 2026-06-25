@@ -1,0 +1,23 @@
+{
+  "session_id": "20260624-v11-hci-demo",
+  "round": 1,
+  "fields": {
+    "artifact_type": {"value": "单界面", "evidence": "用户原话: 评审这个单界面截图", "sufficient": true},
+    "artifact_locator": {"value": "tests/fixtures/hci_demo/artifact.json", "evidence": "用户原话: tests/fixtures/hci_demo/artifact.json", "sufficient": true},
+    "target_audience": {"value": "新手本地推广告主", "evidence": "用户原话: 给新手本地推广告主看", "sufficient": true},
+    "key_concern": {"value": "可理解性和转化阻力", "evidence": "用户原话: 重点看页面理解和开通阻力", "sufficient": true},
+    "distribution_intent": {"value": "specified_personas", "evidence": "用户指定专家陪审员", "sufficient": true}
+  },
+  "consistency_check": {"passed": true, "conflicts": []},
+  "boundary_ack": {
+    "no_absolute_metrics_predicted": true,
+    "no_go_no_go_decision": true,
+    "fit_fidelity_disclaimer": true,
+    "ask_dont_hallucinate": true
+  },
+  "verdict": "SUFFICIENT",
+  "next_action": {
+    "kind": "PROCEED_TO_DAG",
+    "summary_for_user": "评审对象是单界面截图,目标受众为新手本地推广告主,重点看理解成本和开通阻力。"
+  }
+}

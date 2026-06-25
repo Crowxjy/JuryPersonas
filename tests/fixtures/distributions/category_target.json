@@ -1,0 +1,18 @@
+{
+  "$schema_version": "1.0",
+  "category_id": "DEMO-CATEGORY-SPICY-RESTAURANT",
+  "category_name": "辣味餐饮品类大盘(目标拓展分布)",
+  "snapshot_date": "2026-06-22",
+  "note": "Mock:商家想从二线宝妈基本盘拓展到城市中产 + 年轻男性社交餐饮人群。",
+  "axes": ["age_band", "gender", "city_tier", "consumption_level"],
+  "joint_distribution": [
+    {"age_band": "25-35", "gender": "女", "city_tier": "二线",   "consumption_level": "中低", "weight": 0.12, "tags_hint": ["宝妈", "群体决策", "抖音重度", "价格敏感"]},
+    {"age_band": "25-35", "gender": "女", "city_tier": "新一线", "consumption_level": "中高", "weight": 0.16, "tags_hint": ["白领", "中产", "悦己消费"]},
+    {"age_band": "18-25", "gender": "女", "city_tier": "新一线", "consumption_level": "中",   "weight": 0.18, "tags_hint": ["Z世代", "小红书重度", "颜值经济", "社交聚餐"]},
+    {"age_band": "25-35", "gender": "男", "city_tier": "新一线", "consumption_level": "中高", "weight": 0.16, "tags_hint": ["白领男", "中产", "社交聚餐", "夜宵"]},
+    {"age_band": "25-35", "gender": "男", "city_tier": "二线",   "consumption_level": "中低", "weight": 0.08, "tags_hint": ["蓝领", "抖音重度", "实用主义"]},
+    {"age_band": "18-25", "gender": "男", "city_tier": "新一线", "consumption_level": "中",   "weight": 0.18, "tags_hint": ["Z世代男", "游戏宅", "社交聚餐", "短决策"]},
+    {"age_band": "35-50", "gender": "男", "city_tier": "三线",   "consumption_level": "中低", "weight": 0.06, "tags_hint": ["务工", "短决策", "实用主义"]},
+    {"age_band": "60+",   "gender": "任意", "city_tier": "任意", "consumption_level": "低",   "weight": 0.06, "tags_hint": ["银发", "子女影响"]}
+  ]
+}

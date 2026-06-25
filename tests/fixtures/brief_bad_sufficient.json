@@ -1,0 +1,26 @@
+{
+  "session_id": "20260624-100000-bad",
+  "round": 1,
+  "fields": {
+    "artifact_type":       {"value": null, "evidence": null, "sufficient": false},
+    "artifact_locator":    {"value": null, "evidence": null, "sufficient": false},
+    "target_audience":     {"value": "用户", "evidence": "用户原话: 帮我看看", "sufficient": true},
+    "key_concern":         {"value": null, "evidence": null, "sufficient": false},
+    "distribution_intent": {"value": null, "evidence": null, "sufficient": false}
+  },
+  "consistency_check": {
+    "passed": true,
+    "conflicts": []
+  },
+  "boundary_ack": {
+    "no_absolute_metrics_predicted": false,
+    "no_go_no_go_decision": false,
+    "fit_fidelity_disclaimer": false,
+    "ask_dont_hallucinate": false
+  },
+  "verdict": "SUFFICIENT",
+  "next_action": {
+    "kind": "PROCEED_TO_DAG",
+    "summary_for_user": "(虚假摘要)"
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jury-personas/contracts/brief.schema.json",
+  "title": "Brief 充分性判定输出契约",
+  "description": "调用 Jury Personas Skill 的 Agent 在 Brief Phase 每一轮收集后,必须按本 schema 输出结构化判断,落到 .runtime/briefs/<sid>.json,由 orchestrator 校验后决定下一步。",
+  "type": "object",
+  "required": [
+    "session_id",
+    "round",
+    "fields",
+    "consistency_check",
+    "boundary_ack",
+    "verdict",
+    "next_action"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "本次评审会话 ID,用于关联 .runtime/ 下其他阶段产物"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "当前是第几轮 Brief 收集(从 1 开始)"
+    },
+    "fields": {
+      "type": "object",
+      "description": "5 个必备字段的逐项判断",
+      "required": [
+        "artifact_type",
+        "artifact_locator",
+        "target_audience",
+        "key_concern",
+        "distribution_intent"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_type": {"$ref": "#/$defs/FieldJudgement"},
+        "artifact_locator": {"$ref": "#/$defs/FieldJudgement"},
+        "target_audience": {"$ref": "#/$defs/FieldJudgement"},
+        "key_concern": {"$ref": "#/$defs/FieldJudgement"},
+        "distribution_intent": {"$ref": "#/$defs/FieldJudgement"}
+      }
+    },
+    "consistency_check": {
+      "type": "object",
+      "required": ["passed", "conflicts"],
+      "additionalProperties": false,
+      "properties": {
+        "passed": {
+          "type": "boolean",
+          "description": "5 个字段间是否相互逻辑自洽(见 brief_harness.md 一致性约束)"
+        },
+        "conflicts": {
+          "type": "array",
+          "description": "passed=false 时必须列出至少 1 条冲突描述;passed=true 时必须为空数组",
+          "items": {
+            "type": "object",
+            "required": ["fields", "description", "ask_user"],
+            "additionalProperties": false,
+            "properties": {
+              "fields": {
+                "type": "array",
+                "minItems": 2,
+                "items": {"type": "string"},
+                "description": "冲突涉及的字段名"
+              },
+              "description": {
+                "type": "string",
+                "description": "冲突的具体描述"
+              },
+              "ask_user": {
+                "type": "string",
+                "description": "向用户澄清冲突的具体问句"
+              }
+            }
+          }
+        }
+      }
+    },
+    "boundary_ack": {
+      "type": "object",
+      "description": "4 条边界共识状态;首次会话(round=1 且 prior_acked=false)时必须全 true 才能 SUFFICIENT",
+      "required": [
+        "no_absolute_metrics_predicted",
+        "no_go_no_go_decision",
+        "fit_fidelity_disclaimer",
+        "ask_dont_hallucinate"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "no_absolute_metrics_predicted": {
+          "type": "boolean",
+          "description": "用户已知悉:本 Skill 不预测完播率/转化率绝对值"
+        },
+        "no_go_no_go_decision": {
+          "type": "boolean",
+          "description": "用户已知悉:本 Skill 不裁决该不该上线,只给路径"
+        },
+        "fit_fidelity_disclaimer": {
+          "type": "boolean",
+          "description": "用户已知悉:临时拟合/draft 画像会带保真度声明"
+        },
+        "ask_dont_hallucinate": {
+          "type": "boolean",
+          "description": "用户已知悉:缺关键素材时本 Skill 会主动要求补齐,不脑补"
+        }
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["SUFFICIENT", "INSUFFICIENT"],
+      "description": "二值化判定;只有 SUFFICIENT 才允许进入 DAG 推荐阶段"
+    },
+    "verdict_reason": {
+      "type": "string",
+      "description": "verdict 的人类可读理由,INSUFFICIENT 时必填"
+    },
+    "next_action": {
+      "type": "object",
+      "required": ["kind"],
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {"const": "ASK_USER"},
+            "questions": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {"type": "string"},
+              "description": "向用户澄清的具体问题(1-4 条),按重要度降序排列"
+            }
+          },
+          "required": ["kind", "questions"],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "kind": {"const": "PROCEED_TO_DAG"},
+            "summary_for_user": {
+              "type": "string",
+              "description": "已自动判定的 brief 摘要,等用户一键确认/修改后才真正进入 DAG"
+            }
+          },
+          "required": ["kind", "summary_for_user"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "FieldJudgement": {
+      "type": "object",
+      "required": ["value", "evidence", "sufficient"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "description": "字段抽取出的值;不充分时为 null",
+          "type": ["string", "object", "null"]
+        },
+        "evidence": {
+          "description": "抽取依据,必须是用户上下文中可回溯的原话或路径;不充分时为 null。orchestrator 会回查匹配。",
+          "type": ["string", "null"]
+        },
+        "sufficient": {
+          "type": "boolean",
+          "description": "本字段是否满足 brief_harness.md 中对应判据"
+        }
+      }
+    }
+  }
+}

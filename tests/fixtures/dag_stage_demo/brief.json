@@ -1,0 +1,46 @@
+{
+  "session_id": "20260625-dag-stage-demo",
+  "round": 1,
+  "fields": {
+    "artifact_type": {
+      "value": "营销文案",
+      "evidence": "用户原话: 用 mock 数据验证营销文案 DAG",
+      "sufficient": true
+    },
+    "artifact_locator": {
+      "value": "tests/fixtures/dag_stage_demo/copy.md",
+      "evidence": "用户原话: tests/fixtures/dag_stage_demo/copy.md",
+      "sufficient": true
+    },
+    "target_audience": {
+      "value": "下班后刷短内容的三线城市年轻妈妈",
+      "evidence": "用户原话: 给下班后刷短内容的三线城市年轻妈妈看",
+      "sufficient": true
+    },
+    "key_concern": {
+      "value": "开头是否劝退、利益是否清楚、CTA 是否自然",
+      "evidence": "用户原话: 重点看开头是否劝退、利益是否清楚、CTA 是否自然",
+      "sufficient": true
+    },
+    "distribution_intent": {
+      "value": "specified_personas",
+      "evidence": "用户指定 consumer-genz-female 和 ad-buyer",
+      "sufficient": true
+    }
+  },
+  "consistency_check": {
+    "passed": true,
+    "conflicts": []
+  },
+  "boundary_ack": {
+    "no_absolute_metrics_predicted": true,
+    "no_go_no_go_decision": true,
+    "fit_fidelity_disclaimer": true,
+    "ask_dont_hallucinate": true
+  },
+  "verdict": "SUFFICIENT",
+  "next_action": {
+    "kind": "PROCEED_TO_DAG",
+    "summary_for_user": "用营销文案 mock fixture 验证 observe、persona、aggregate、synthesize 阶段能独立落盘并串联。"
+  }
+}

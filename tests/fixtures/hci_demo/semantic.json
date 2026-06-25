@@ -1,0 +1,8 @@
+{
+  "blocks": [
+    {"id": 1, "type": "title", "text": "本地推智能投放", "bbox": [1, 1, 14, 2]},
+    {"id": 2, "type": "offer", "text": "首周 99 元试用", "bbox": [2, 4, 5, 6]},
+    {"id": 3, "type": "benefit", "text": "自动生成门店计划", "bbox": [8, 5, 12, 7]},
+    {"id": 4, "type": "cta", "text": "立即开通", "bbox": [2, 10, 13, 12]}
+  ]
+}

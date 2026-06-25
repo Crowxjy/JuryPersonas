@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "decisions": [
+    {
+      "decision_id": "merge-ad-buyer-2026-06-24",
+      "status": "merged",
+      "merged_role_id": "ad-buyer",
+      "source_role_ids": [
+        "ad-buyer-expert",
+        "ad-buyer-senior"
+      ],
+      "default_role_id": "ad-buyer",
+      "legacy_role_ids": [
+        "ad-buyer-expert",
+        "ad-buyer-senior"
+      ],
+      "preserve_legacy_files": true,
+      "reason": "用户要求将 ad-buyer-expert 和 ad-buyer-senior 合并为统一画像。保留 legacy 文件用于 expert-roundtable 迁移审计与向后兼容,默认评审入口改为 ad-buyer。"
+    }
+  ]
+}

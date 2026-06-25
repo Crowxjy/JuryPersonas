@@ -1,0 +1,19 @@
+{
+  "$schema_version": "1.0",
+  "merchant_id": "DEMO-MERCHANT-001",
+  "merchant_name": "三线城市某网红小龙虾店",
+  "target_category": "消费者",
+  "snapshot_date": "2026-06-22",
+  "note": "Mock 数据,仅用于 PoC 测试。真实接入时应通过平台脱敏画像系统读取强标签联合分布。",
+  "axes": ["age_band", "gender", "city_tier", "consumption_level"],
+  "joint_distribution": [
+    {"age_band": "25-35", "gender": "女", "city_tier": "二线",   "consumption_level": "中低", "weight": 0.22, "tags_hint": ["宝妈", "群体决策", "抖音重度", "价格敏感"]},
+    {"age_band": "25-35", "gender": "女", "city_tier": "二线",   "consumption_level": "中高", "weight": 0.08, "tags_hint": ["白领", "中产", "颜值经济"]},
+    {"age_band": "18-25", "gender": "女", "city_tier": "新一线", "consumption_level": "中低", "weight": 0.15, "tags_hint": ["Z世代", "小红书重度", "性价比敏感", "决策快"]},
+    {"age_band": "25-35", "gender": "男", "city_tier": "二线",   "consumption_level": "中低", "weight": 0.18, "tags_hint": ["蓝领", "务工", "抖音重度", "实用主义"]},
+    {"age_band": "35-50", "gender": "男", "city_tier": "三线",   "consumption_level": "中低", "weight": 0.12, "tags_hint": ["务工", "短决策", "拼多多", "实用主义"]},
+    {"age_band": "60+",   "gender": "男", "city_tier": "三线",   "consumption_level": "低",   "weight": 0.10, "tags_hint": ["银发", "抖音入门", "健康焦虑", "子女影响"]},
+    {"age_band": "60+",   "gender": "女", "city_tier": "三线",   "consumption_level": "低",   "weight": 0.08, "tags_hint": ["银发", "广场舞", "微信群", "子女影响"]},
+    {"age_band": "18-25", "gender": "男", "city_tier": "新一线", "consumption_level": "中",   "weight": 0.07, "tags_hint": ["Z世代男", "游戏宅", "短决策"]}
+  ]
+}

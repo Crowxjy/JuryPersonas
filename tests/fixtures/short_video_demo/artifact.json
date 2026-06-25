@@ -1,0 +1,51 @@
+{
+  "artifact_type": "短视频",
+  "artifact_locator": "tests/fixtures/short_video_demo/artifact.json",
+  "title": "三线小镇老板娘的小龙虾店日常 vlog",
+  "duration_sec": 38,
+  "platform": "抖音",
+  "url": null,
+  "key_frames": [
+    {
+      "ts_sec": 0,
+      "description": "店门口红色招牌特写,无字幕,白底大字'今日推荐'",
+      "voiceover": null,
+      "ui_elements": ["招牌", "红色背景"]
+    },
+    {
+      "ts_sec": 3,
+      "description": "老板娘出镜半身,背景厨房,讲话开始",
+      "voiceover": "大家好我是张姐,今天给大家整一份地道小龙虾",
+      "ui_elements": ["老板娘半身像", "厨房背景"]
+    },
+    {
+      "ts_sec": 12,
+      "description": "灶台特写,大锅油爆姜蒜,声音外放",
+      "voiceover": "锅烧热,下姜蒜爆香,这一步千万不能省",
+      "ui_elements": ["灶台", "锅", "姜蒜"]
+    },
+    {
+      "ts_sec": 22,
+      "description": "成品装盘特写,红油浓郁,撒葱花",
+      "voiceover": "好嘞,出锅,看这色泽,28 一份不贵吧",
+      "ui_elements": ["成品盘", "红油", "葱花"]
+    },
+    {
+      "ts_sec": 32,
+      "description": "老板娘出镜全身,手指购物车小黄车角标",
+      "voiceover": "想吃的家人们点击下方小黄车,我给大家备好了",
+      "ui_elements": ["老板娘全身", "购物车角标"]
+    }
+  ],
+  "captions": "店门口红招牌 / 张姐出镜介绍 / 灶台爆香细节 / 成品 28 元 / 引导小黄车下单",
+  "cta": {
+    "type": "购物车下单",
+    "ts_sec": 32,
+    "text": "点击下方小黄车"
+  },
+  "claims": [
+    "地道做法",
+    "28 元一份不贵"
+  ],
+  "notes": "供 jury-react 模式使用。本 fixture 不包含真实视频文件,只用于端到端骨架冒烟。"
+}

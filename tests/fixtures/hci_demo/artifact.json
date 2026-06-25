@@ -1,0 +1,11 @@
+{
+  "title": "本地推开通页 HCI Demo",
+  "content": "单界面截图描述:顶部为本地推智能投放标题,中部展示首周 99 元试用和自动生成门店计划,底部有立即开通 CTA。",
+  "hci": {
+    "image_path": "screen.pgm",
+    "aoi_json": "aoi.json",
+    "semantic_file": "semantic.json",
+    "issues_file": "issues.json",
+    "page_labels": ["开通页"]
+  }
+}

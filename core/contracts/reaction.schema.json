@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jury-personas/contracts/reaction.schema.json",
+  "title": "Jury reaction bundle contract",
+  "description": "mode/jury-react 输出和宿主 Agent/模型回填后的 bundle 契约。aggregate-consensus 依赖 participants[*].reaction 中的 5 字段问题块和 0-10 评分块。",
+  "type": "object",
+  "required": ["mode", "session_id", "scenario", "participants"],
+  "additionalProperties": true,
+  "properties": {
+    "mode": {"const": "mode/jury-react"},
+    "session_id": {"type": "string"},
+    "scenario": {"type": "string"},
+    "artifact": {"type": "object"},
+    "observations": {"type": "object"},
+    "brief_summary": {"type": "object"},
+    "participants": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["role_id", "name", "system_prompt", "user_prompt", "reaction"],
+        "additionalProperties": true,
+        "properties": {
+          "role_id": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "sub_category": {"type": "string"},
+          "status": {"type": "string"},
+          "system_prompt": {"type": "string"},
+          "user_prompt": {"type": "string"},
+          "reaction": {
+            "type": ["string", "null"],
+            "description": "未回填时为 null;回填后必须包含问题块字段: 所属人群/关注点/卡点位置/可能流失原因/改进建议,以及 0-10 评分。"
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

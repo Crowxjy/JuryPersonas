@@ -1,0 +1,1 @@
+评一下我这条小龙虾店短视频，路径 tests/fixtures/short_video_demo/artifact.json。我的目标人群是三线小镇本地消费者，最关心他们看几秒会划走。我点名 consumer-bao-mom-tier2 / consumer-silver-male / consumer-bluecollar-male 三位陪审员。我知道你不预测完播率也不裁决该不该上线，临时画像会带保真度声明，缺素材你会问我。

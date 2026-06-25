@@ -1,0 +1,643 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eagents.local/schemas/roundtable-session.schema.json",
+  "title": "RoundtableSession",
+  "description": "Schema for a multi-round role-based roundtable session.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "session_id",
+    "mode",
+    "status",
+    "topic",
+    "config",
+    "participants",
+    "rounds",
+    "shared_board"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "multi_round_roundtable"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "initialized",
+        "running",
+        "stopped_early",
+        "completed"
+      ]
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref",
+        "content"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "file",
+            "url",
+            "image",
+            "unknown"
+          ]
+        },
+        "ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "content": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "config": {
+      "$ref": "#/$defs/SessionConfig"
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "$ref": "#/$defs/Participant"
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Round"
+      }
+    },
+    "shared_board": {
+      "$ref": "#/$defs/SharedBoard"
+    },
+    "moderator": {
+      "$ref": "#/$defs/Moderator"
+    },
+    "final_summary": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "consensus",
+        "disagreements",
+        "recommended_actions",
+        "unresolved_questions",
+        "final_positions"
+      ],
+      "properties": {
+        "consensus": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disagreements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unresolved_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "final_positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FinalPosition"
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "SessionConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_rounds",
+        "max_participants",
+        "speaker_policy",
+        "summary_strategy",
+        "response_style"
+      ],
+      "properties": {
+        "max_rounds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "max_participants": {
+          "type": "integer",
+          "const": 4
+        },
+        "speaker_policy": {
+          "type": "string",
+          "enum": [
+            "sequential",
+            "dynamic"
+          ]
+        },
+        "summary_strategy": {
+          "type": "string",
+          "enum": [
+            "compressed_board",
+            "full_history"
+          ]
+        },
+        "response_style": {
+          "type": "string",
+          "enum": [
+            "structured",
+            "freeform"
+          ]
+        },
+        "stop_rules": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enable_early_stop": {
+              "type": "boolean"
+            },
+            "stop_when_no_new_disagreement_rounds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "stop_when_positions_stable": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "Participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role_id",
+        "name",
+        "category",
+        "sub_category",
+        "status",
+        "system_prompt",
+        "stance",
+        "state"
+      ],
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "sub_category": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "system_prompt": {
+          "type": "string"
+        },
+        "stance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "position",
+            "score",
+            "confidence"
+          ],
+          "properties": {
+            "position": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "score": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "confidence": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
+        },
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "has_spoken",
+            "last_round_seen",
+            "last_turn_id"
+          ],
+          "properties": {
+            "has_spoken": {
+              "type": "boolean"
+            },
+            "last_round_seen": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "last_turn_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "Round": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "round_id",
+        "goal",
+        "turn_type",
+        "status",
+        "speaker_order",
+        "turns"
+      ],
+      "properties": {
+        "round_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "goal": {
+          "type": "string"
+        },
+        "turn_type": {
+          "type": "string",
+          "enum": [
+            "opening",
+            "response",
+            "followup",
+            "conclusion"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "done"
+          ]
+        },
+        "speaker_order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "turns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Turn"
+          }
+        }
+      }
+    },
+    "Turn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "turn_id",
+        "round_id",
+        "speaker",
+        "turn_type",
+        "input_context",
+        "output"
+      ],
+      "properties": {
+        "turn_id": {
+          "type": "string"
+        },
+        "round_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "speaker": {
+          "type": "string"
+        },
+        "turn_type": {
+          "type": "string"
+        },
+        "input_context": {
+          "$ref": "#/$defs/InputContext"
+        },
+        "output": {
+          "$ref": "#/$defs/TurnOutput"
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string"
+            },
+            "tokens_in": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "tokens_out": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "InputContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "topic",
+        "round_goal",
+        "artifact_excerpt",
+        "other_views_summary",
+        "shared_board_snapshot",
+        "instruction"
+      ],
+      "properties": {
+        "topic": {
+          "type": "string"
+        },
+        "round_goal": {
+          "type": "string"
+        },
+        "artifact_excerpt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "other_views_summary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OtherView"
+          }
+        },
+        "shared_board_snapshot": {
+          "$ref": "#/$defs/SharedBoard"
+        },
+        "instruction": {
+          "type": "string"
+        }
+      }
+    },
+    "OtherView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role_id",
+        "name",
+        "summary"
+      ],
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "TurnOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content",
+        "structured"
+      ],
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "structured": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "position",
+            "score",
+            "confidence",
+            "top_concerns",
+            "agreements",
+            "disagreements",
+            "proposal",
+            "open_questions",
+            "changed_position"
+          ],
+          "properties": {
+            "position": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "score": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "confidence": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "top_concerns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "agreements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "disagreements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "proposal": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "open_questions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "changed_position": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "SharedBoard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consensus",
+        "disagreements",
+        "open_questions",
+        "proposals",
+        "last_updated_round"
+      ],
+      "properties": {
+        "consensus": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disagreements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "proposals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "last_updated_round": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "Moderator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "policy"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "policy": {
+          "type": "string"
+        }
+      }
+    },
+    "FinalPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role_id",
+        "name",
+        "position",
+        "score"
+      ],
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "position": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

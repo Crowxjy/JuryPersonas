@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jury-personas/contracts/observation.schema.json",
+  "title": "Observation artifact contract",
+  "description": "mode/observe-* 产物的最小公共契约。文本 extract 产物是结构化原文,HCI 产物可以是预测性客观观察;二者都不能被解释为真实效果结论。",
+  "type": "object",
+  "required": ["mode", "status"],
+  "additionalProperties": true,
+  "properties": {
+    "mode": {
+      "type": "string",
+      "pattern": "^mode/"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["OK", "SKIPPED", "NEEDS_INPUT", "NEEDS_KEYFRAMES", "ERROR"]
+    },
+    "source": {"type": ["string", "null"]},
+    "summary": {
+      "type": "object",
+      "description": "面向报告的摘要;禁止包含真实转化率/点击率/完播率预测。",
+      "additionalProperties": true
+    },
+    "items": {
+      "type": "array",
+      "items": {"type": "object"}
+    },
+    "metrics_summary": {
+      "type": "object",
+      "description": "HCI/heatmap/cross-page 等指标摘要;必须是预测或启发式观察,不是用户真实行为数据。",
+      "additionalProperties": true
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "structured_source_not_final_judgement": {"type": "boolean"},
+        "no_real_effect_claim_without_feedback_data": {"type": "boolean"}
+      }
+    }
+  }
+}

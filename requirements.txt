@@ -1,0 +1,12 @@
+# Core validation dependency. brief_validator.py can run without it, but installs
+# get stricter JSON Schema checks when it is present.
+jsonschema>=4.0
+
+# HCI observe A-tier and annotated image rendering.
+numpy>=1.24
+Pillow>=10.0
+scipy>=1.10
+
+# Optional MSI-Net B-tier helpers. TensorFlow model runtime is intentionally not
+# pinned here because it is heavy and not required for the default Skill path.
+huggingface_hub>=0.20

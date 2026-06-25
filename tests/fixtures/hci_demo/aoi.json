@@ -1,0 +1,6 @@
+[
+  {"x": 8, "y": 2, "intensity": 1.0, "radius": 3, "label": "顶部标题"},
+  {"x": 4, "y": 5, "intensity": 0.8, "radius": 2, "label": "价格利益点"},
+  {"x": 10, "y": 6, "intensity": 0.7, "radius": 2, "label": "权益说明"},
+  {"x": 8, "y": 11, "intensity": 0.9, "radius": 2, "label": "底部 CTA"}
+]

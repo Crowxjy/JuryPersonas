@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JuryPersonas Evaluation Case",
+  "type": "object",
+  "required": [
+    "case_id",
+    "scenario",
+    "brief_file",
+    "artifact_file",
+    "personas",
+    "gold_feedback",
+    "expected"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenario": {
+      "type": "string",
+      "minLength": 1
+    },
+    "brief_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "personas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "gold_feedback": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "position",
+          "concern",
+          "evidence",
+          "source"
+        ],
+        "properties": {
+          "position": {
+            "type": "string"
+          },
+          "concern": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "seed_label",
+              "real_complaint",
+              "human_review",
+              "business_review"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "expected": {
+      "type": "object",
+      "properties": {
+        "min_complaints": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min_consensus": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min_gold_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
