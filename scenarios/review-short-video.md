@@ -1,8 +1,18 @@
 ---
 name: 短视频成片评审
 artifact_type: short-video
+artifact_aliases:
+  values:
+    - 短视频
+    - 短视频成片
+default_personas:
+  role_ids:
+    - consumer-bao-mom-tier2
+    - consumer-silver-male
+    - consumer-bluecollar-male
 modes:
   required:
+    - mode/keyframe-extract
     - mode/jury-react
     - mode/aggregate-consensus
     - mode/render-report
@@ -11,7 +21,6 @@ modes:
     - mode/persona-fit
   optional:
     - mode/persona-pick
-    - mode/keyframe-extract
     - mode/heatmap
     - mode/aggregate-distribution-gap
     - mode/synthesize-tension

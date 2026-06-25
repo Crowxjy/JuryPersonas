@@ -1,8 +1,17 @@
 ---
 name: PRD 文档评审
 artifact_type: prd
+artifact_aliases:
+  values:
+    - PRD
+    - PRD 文档
+default_personas:
+  role_ids:
+    - product-expert
+    - ad-buyer
 modes:
   required:
+    - mode/prd-extract
     - mode/jury-react
     - mode/aggregate-consensus
     - mode/render-report
@@ -13,7 +22,6 @@ modes:
   optional:
     - mode/persona-sample
     - mode/persona-fit
-    - mode/prd-extract
     - mode/aggregate-distribution-gap
   forbidden:
     - mode/keyframe-extract

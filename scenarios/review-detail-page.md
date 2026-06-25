@@ -1,6 +1,13 @@
 ---
 name: 详情页评审
 artifact_type: detail-page
+artifact_aliases:
+  values:
+    - 详情页
+default_personas:
+  role_ids:
+    - consumer-bao-mom-tier2
+    - local-business-expert
 modes:
   required:
     - mode/detail-page-extract

@@ -1,6 +1,13 @@
 ---
 name: 商品卡评审
 artifact_type: product-card
+artifact_aliases:
+  values:
+    - 商品卡
+default_personas:
+  role_ids:
+    - consumer-genz-female
+    - ad-buyer
 modes:
   required:
     - mode/product-card-extract

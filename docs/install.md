@@ -44,7 +44,7 @@ python3 tools/regression.py \
 
 ## 默认陪审团
 
-`jury_review.py` 和 `orchestrator/pipeline.py --execute` 支持不传 `--personas`;此时会按场景选择保守默认组合。显式传入 `--personas` 时永远以用户指定为准。
+`jury_review.py` 和 `orchestrator/pipeline.py --execute` 支持不传 `--personas`;此时会读取对应 `scenarios/review-*.md` frontmatter 中的 `default_personas.role_ids`。显式传入 `--personas` 时永远以用户指定为准。
 
 | 场景 | 默认角色 |
 |---|---|

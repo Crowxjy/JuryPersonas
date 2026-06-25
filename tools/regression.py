@@ -23,6 +23,7 @@ SKILL_ROOT = TOOLS_DIR.parent
 DEFAULT_RUNTIME_ROOT = Path("/tmp") / f"jp_regression_{int(time.time())}"
 
 SCENARIO_BRIEFS = [
+    "tests/fixtures/short_video_demo/brief.json",
     "tests/fixtures/prd_demo/brief.json",
     "tests/fixtures/design_demo/brief.json",
     "tests/fixtures/screen_demo/brief.json",
@@ -31,6 +32,17 @@ SCENARIO_BRIEFS = [
     "tests/fixtures/marketing_copy_demo/brief.json",
     "tests/fixtures/hci_demo/brief.json",
 ]
+
+SCENARIO_PLAN_EXPECTED_MODES = {
+    "short_video_demo": ["mode/keyframe-extract"],
+    "prd_demo": ["mode/prd-extract"],
+    "design_demo": ["mode/design-extract"],
+    "screen_demo": ["mode/screen-extract"],
+    "detail_page_demo": ["mode/detail-page-extract"],
+    "product_card_demo": ["mode/product-card-extract"],
+    "marketing_copy_demo": ["mode/copy-extract"],
+    "hci_demo": ["mode/screen-extract"],
+}
 
 
 class StepFailed(RuntimeError):
@@ -231,12 +243,17 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
     )
 
     for idx, brief in enumerate(SCENARIO_BRIEFS, start=1):
+        fixture_name = Path(brief).parent.name
+        expected_modes = SCENARIO_PLAN_EXPECTED_MODES.get(fixture_name, [])
         steps.append(
             run_cmd(
-                f"scenario_plan_{idx:02d}_{Path(brief).parent.name}",
+                f"scenario_plan_{idx:02d}_{fixture_name}",
                 [sys.executable, "orchestrator/pipeline.py", "--brief-file", brief],
                 runtime_root=runtime_root,
-                check_stdout_contains=['"status": "OK"'],
+                check_stdout_contains=[
+                    '"status": "OK"',
+                    *[f'"mode": "{mode}"' for mode in expected_modes],
+                ],
             )
         )
 

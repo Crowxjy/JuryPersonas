@@ -62,7 +62,7 @@ python3 orchestrator/pipeline.py \
 --personas product-expert,ad-buyer
 ```
 
-用户不传 `--personas` 时,`orchestrator/pipeline.py --execute` 会按场景使用保守默认组合,并在输出 plan 的 `persona_selection.source` 标为 `scenario_default`。
+用户不传 `--personas` 时,`orchestrator/pipeline.py --execute` 会读取场景 frontmatter 的 `default_personas.role_ids`,并在输出 plan 的 `persona_selection.source` 标为 `scenario_default`。
 
 适用场景:
 

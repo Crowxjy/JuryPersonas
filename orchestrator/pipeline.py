@@ -340,7 +340,6 @@ def execute_dag(
     artifacts: dict[str, str] = {}
     observations = run_observe_stage(
         sid=sid,
-        scenario=scenario,
         dag_modes=dag_modes,
         artifact=artifact,
         artifact_path=artifact_path,

@@ -27,12 +27,12 @@
 python3 jury_review.py \
   --brief tests/fixtures/short_video_demo/brief.json \
   --artifact tests/fixtures/short_video_demo/artifact.json \
-    --personas consumer-bao-mom-tier2,consumer-silver-male
+  --personas consumer-bao-mom-tier2,consumer-silver-male
 
-  # 不传 --personas 时会使用场景默认陪审团组合
-  python3 jury_review.py \
-    --brief tests/fixtures/prd_demo/brief.json \
-    --artifact tests/fixtures/prd_demo/prd.md
+# 不传 --personas 时会使用场景默认陪审团组合
+python3 jury_review.py \
+  --brief tests/fixtures/prd_demo/brief.json \
+  --artifact tests/fixtures/prd_demo/prd.md
 
 # 更底层的 orchestrator 入口
 python3 orchestrator/pipeline.py --brief-file tests/fixtures/prd_demo/brief.json

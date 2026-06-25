@@ -1,6 +1,15 @@
 ---
 name: 单/多界面评审
 artifact_type: screen
+artifact_aliases:
+  values:
+    - 单界面
+    - 界面截图
+    - 多界面
+default_personas:
+  role_ids:
+    - ux-designer-senior
+    - consumer-genz-female
 modes:
   required:
     - mode/screen-extract

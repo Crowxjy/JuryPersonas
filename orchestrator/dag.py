@@ -15,36 +15,10 @@ except ImportError:  # script import: python orchestrator/pipeline.py
     from bootstrap import SCENARIOS_DIR  # type: ignore
 
 
-ARTIFACT_TYPE_TO_SCENARIO = {
-    "短视频": "review-short-video",
-    "PRD": "review-prd",
-    "设计稿": "review-design",
-    "单界面": "review-screen",
-    "界面截图": "review-screen",
-    "多界面": "review-screen",
-    "详情页": "review-detail-page",
-    "商品卡": "review-product-card",
-    "营销文案": "review-marketing-copy",
-}
-
 DISTRIBUTION_TO_MODE = {
     "real": "mode/persona-sample",
     "mock": "mode/persona-sample",
     "specified_personas": "mode/persona-pick",
-}
-
-DEFAULT_PERSONAS_BY_SCENARIO = {
-    "review-short-video": [
-        "consumer-bao-mom-tier2",
-        "consumer-silver-male",
-        "consumer-bluecollar-male",
-    ],
-    "review-prd": ["product-expert", "ad-buyer"],
-    "review-design": ["ux-designer-senior", "product-expert"],
-    "review-screen": ["ux-designer-senior", "consumer-genz-female"],
-    "review-detail-page": ["consumer-bao-mom-tier2", "local-business-expert"],
-    "review-product-card": ["consumer-genz-female", "ad-buyer"],
-    "review-marketing-copy": ["consumer-genz-female", "ad-buyer"],
 }
 
 STAGE_PRIORITY = {
@@ -122,19 +96,37 @@ def parse_frontmatter(scenario_path: Path) -> dict:
     return data
 
 
+def normalize_alias(value: object) -> str:
+    return str(value or "").strip().lower()
+
+
+def scenario_paths() -> list[Path]:
+    return sorted(SCENARIOS_DIR.glob("review-*.md"))
+
+
+def scenario_aliases(frontmatter: dict) -> list[str]:
+    raw_aliases = frontmatter.get("artifact_aliases", {}).get("values", [])
+    aliases = [frontmatter.get("artifact_type"), frontmatter.get("name"), *raw_aliases]
+    return [normalize_alias(alias) for alias in aliases if normalize_alias(alias)]
+
+
 def select_scenario(artifact_type: str) -> tuple[str, Path]:
-    slug = ARTIFACT_TYPE_TO_SCENARIO.get(artifact_type)
-    if not slug:
-        raise RuntimeError(f"暂未实现 artifact_type='{artifact_type}' 的 scenario")
-    path = SCENARIOS_DIR / f"{slug}.md"
-    if not path.exists():
-        raise RuntimeError(f"scenario 文件不存在: {path}")
-    return slug, path
+    requested = normalize_alias(artifact_type)
+    for path in scenario_paths():
+        front = parse_frontmatter(path)
+        if requested in scenario_aliases(front):
+            return path.stem, path
+    raise RuntimeError(f"暂未实现 artifact_type='{artifact_type}' 的 scenario")
 
 
 def default_persona_ids_for_scenario(scenario_slug: str) -> list[str]:
-    """Return conservative default jury members for a scenario."""
-    return list(DEFAULT_PERSONAS_BY_SCENARIO.get(scenario_slug, []))
+    """Return conservative default jury members declared by a scenario."""
+    path = SCENARIOS_DIR / f"{scenario_slug}.md"
+    if not path.exists():
+        return []
+    front = parse_frontmatter(path)
+    defaults = front.get("default_personas", {}).get("role_ids", [])
+    return list(defaults)
 
 
 def build_dag(

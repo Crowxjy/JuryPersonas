@@ -199,7 +199,6 @@ def run_annotate_observe(
 def run_observe_stage(
     *,
     sid: str,
-    scenario: str,
     dag_modes: list[str],
     artifact: dict,
     artifact_path: Path,
@@ -220,7 +219,7 @@ def run_observe_stage(
 
     observations: dict[str, dict] = {}
 
-    if "mode/keyframe-extract" in dag_modes or scenario == "review-short-video":
+    if "mode/keyframe-extract" in dag_modes:
         log_event("execute.observe.keyframe.start")
         keyframe_obs = keyframe_extract.build_keyframe_observation(
             artifact,
@@ -235,7 +234,7 @@ def run_observe_stage(
         artifacts["keyframe_observation"] = str(keyframe_path)
         log_event("execute.observe.keyframe.done", path=keyframe_path, status=keyframe_obs.get("status"))
 
-    if "mode/prd-extract" in dag_modes or scenario == "review-prd":
+    if "mode/prd-extract" in dag_modes:
         prd_text = artifact.get("content")
         if prd_text:
             log_event("execute.observe.prd.start", chars=len(prd_text))
@@ -253,7 +252,7 @@ def run_observe_stage(
         else:
             log_event("execute.observe.prd.skip", reason="artifact_has_no_content")
 
-    if "mode/copy-extract" in dag_modes or scenario == "review-marketing-copy":
+    if "mode/copy-extract" in dag_modes:
         copy_text = artifact.get("content")
         if copy_text:
             log_event("execute.observe.copy.start", chars=len(copy_text))
@@ -272,7 +271,7 @@ def run_observe_stage(
         else:
             log_event("execute.observe.copy.skip", reason="artifact_has_no_content")
 
-    if "mode/design-extract" in dag_modes or scenario == "review-design":
+    if "mode/design-extract" in dag_modes:
         design_text = artifact.get("content")
         if design_text:
             log_event("execute.observe.design.start", chars=len(design_text))
@@ -290,7 +289,7 @@ def run_observe_stage(
         else:
             log_event("execute.observe.design.skip", reason="artifact_has_no_content")
 
-    if "mode/screen-extract" in dag_modes or scenario == "review-screen":
+    if "mode/screen-extract" in dag_modes:
         screen_text = artifact.get("content")
         if screen_text:
             log_event("execute.observe.screen.start", chars=len(screen_text))
@@ -308,7 +307,7 @@ def run_observe_stage(
         else:
             log_event("execute.observe.screen.skip", reason="artifact_has_no_content")
 
-    if "mode/detail-page-extract" in dag_modes or scenario == "review-detail-page":
+    if "mode/detail-page-extract" in dag_modes:
         detail_text = artifact.get("content")
         if detail_text:
             log_event("execute.observe.detail_page.start", chars=len(detail_text))
@@ -327,7 +326,7 @@ def run_observe_stage(
         else:
             log_event("execute.observe.detail_page.skip", reason="artifact_has_no_content")
 
-    if "mode/product-card-extract" in dag_modes or scenario == "review-product-card":
+    if "mode/product-card-extract" in dag_modes:
         card_text = artifact.get("content")
         if card_text:
             log_event("execute.observe.product_card.start", chars=len(card_text))

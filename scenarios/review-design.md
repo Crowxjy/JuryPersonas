@@ -1,6 +1,13 @@
 ---
 name: 设计稿评审
 artifact_type: design
+artifact_aliases:
+  values:
+    - 设计稿
+default_personas:
+  role_ids:
+    - ux-designer-senior
+    - product-expert
 modes:
   required:
     - mode/design-extract

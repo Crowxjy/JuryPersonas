@@ -1,6 +1,13 @@
 ---
 name: 营销文案评审
 artifact_type: marketing-copy
+artifact_aliases:
+  values:
+    - 营销文案
+default_personas:
+  role_ids:
+    - consumer-genz-female
+    - ad-buyer
 modes:
   required:
     - mode/copy-extract
