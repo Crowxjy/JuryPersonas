@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 """
-pipeline.py — Brief → DAG 调度 + 执行器(M2 骨架 + M3 升级)
+pipeline.py — Brief → scenario DAG 调度 + Skill 执行器
 
 职责:
 1. 读 brief.json
 2. 跑 brief_validator 五重校验,不过则输出 next_action 让 Agent 重收
 3. 过了则按 brief.fields.artifact_type 选 scenario,解析 frontmatter modes 字段
 4. 按 brief.fields.distribution_intent 决定走 persona-sample / persona-fit / persona-pick
-5. 输出 DAG 执行计划 JSON
+5. 输出 DAG 执行计划 JSON,或按 DAG 执行 observe/react/aggregate/synthesize/report
 
-⚠️ M3 升级:增加 --execute 模式,把计划真跑成产物
-   - 串接 observe/persona → modes/jury/jury_react.py
-     → tools/mock_llm_responder.py(本地回归桩)
-     → modes/aggregate/consensus.py → modes/render/report.py → reporting/lark_renderer.py
+执行边界:
+   - 场景 DAG、默认陪审团和 artifact alias 以 scenarios/review-*.md frontmatter 为事实源
+   - 本地回归可用 tools/mock_llm_responder.py 回填 reactions
    - 正式使用时由宿主 Agent/模型回填 reactions;脚本层保持 Skill 形态
+   - 报告优先产出 HTML,同时生成 Markdown/DocxXML;--lark-execute 使用 DocxXML 走 lark-doc v2 真发布
 
 使用模式:
 
-    # 仅出 plan(原 M2 行为)
+    # 仅出 plan
     python3 pipeline.py --brief-file <path>
 
-    # 真执行 M3 端到端(短视频 MVP)
+    # 本地执行端到端
     python3 pipeline.py --brief-file <path> \\
         --artifact-file <artifact.json> \\
         --personas consumer-bao-mom-tier2,consumer-silver-male,consumer-bluecollar-male \\
         --execute \\
-        --runtime-dir /tmp/jp_m3
+        --runtime-dir /tmp/jp_runtime
 
     # 不要 mock(等待宿主 Agent/模型回填 reactions),只跑到 jury-react bundle
     python3 pipeline.py --brief-file <path> --artifact-file <a> \\
@@ -71,7 +71,7 @@ import brief_validator  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Brief → DAG 调度骨架(+ M3 执行器)")
+    parser = argparse.ArgumentParser(description="Brief → scenario DAG 调度 + Skill 执行器")
     parser.add_argument("--brief-file", required=True, help="Agent 吐出的 brief JSON 路径")
     parser.add_argument("--context-file", help="用户原始上下文文件,触发 evidence 回溯")
     parser.add_argument("--first-round", action="store_true", help="首次会话标记")
@@ -82,11 +82,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--exclude", action="append", default=[], help="用户排除的非 required 模式(可多次)"
     )
     parser.add_argument("--pretty", action="store_true", help="美化 JSON 输出")
-    # M3 升级
     parser.add_argument(
         "--execute",
         action="store_true",
-        help="真按 DAG 执行(M3),否则只输出计划(M2 行为)",
+        help="按 DAG 执行,否则只输出计划",
     )
     parser.add_argument(
         "--artifact-file",

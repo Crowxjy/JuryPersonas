@@ -1,6 +1,6 @@
 ---
 name: jury-personas
-description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短视频/详情页/营销文案做评审时使用本 Skill。先通过 Brief Workshop 收集需求(评估对象、目标受众、关心维度、是否有真实分布),再按场景推荐原子模式 DAG(客观度量/陪审反应/聚合/张力归纳/报告渲染),最后优先产出场景/Mode 自适应 HTML 报告,并保留 Markdown/DocxXML/飞书本地降级副本。陪审团由专家画像 + 消费者画像 + BD/管理者画像组成,支持手写/切片自动构建/临时拟合/分布采样四种生成方式。触发词:陪审、评审、Jury、流失评审、短视频评审、PRD 评审、设计评审、群体评审、用户视角评审。
+description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短视频/详情页/营销文案做评审时使用本 Skill。先通过 Brief Workshop 收集需求(评估对象、目标受众、关心维度、是否有真实分布),再按场景推荐原子模式 DAG(客观度量/陪审反应/聚合/张力归纳/报告渲染),最后优先产出场景/Mode 自适应 HTML 报告,并保留 Markdown/DocxXML;飞书发布默认 dry-run,显式 --lark-execute 时用 DocxXML 走 lark-doc v2 创建。陪审团由专家画像 + 消费者画像 + BD/管理者画像组成,支持手写/切片自动构建/临时拟合/分布采样四种生成方式。触发词:陪审、评审、Jury、流失评审、短视频评审、PRD 评审、设计评审、群体评审、用户视角评审。
 ---
 
 # Jury Personas · 陪审团画像 Skill
@@ -39,7 +39,7 @@ description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短
 | `mode/aggregate-distribution-gap` | ✅ v0.11 execute | reactions[] + 双分布 | F6 双分布 gap |
 | `mode/synthesize-tension` | v0.3 | 分歧[] | 核心张力 + 决策偏好因子 |
 | `mode/synthesize-paths` | v0.3 | 张力 + 偏好因子 | 🅰/🅑 双决策路径 |
-| `mode/render-report` | ✅ v0.11 | 全部产物 | HTML 优先 + Markdown/DocxXML/飞书 fallback |
+| `mode/render-report` | ✅ v0.13 | 全部产物 | HTML 优先 + Markdown/DocxXML + lark-doc v2 发布预览/创建 |
 
 ## 三、当前真实入口
 
@@ -53,7 +53,7 @@ python3 jury_review.py --brief <brief.json> --artifact <artifact> --personas <ro
 # 只做 Brief → Scenario/DAG plan
 python3 orchestrator/pipeline.py --brief-file <brief.json>
 
-# 执行完整本地 mock e2e;--personas 可省略
+# 执行完整本地回归链路;--personas 可省略
 python3 orchestrator/pipeline.py --brief-file <brief.json> --artifact-file <artifact> --personas <role_id,...> --execute
 
 # 宿主 Agent/模型正式回填流
@@ -101,11 +101,11 @@ orchestrator 会回查 evidence 是否在用户上下文可匹配,**杜绝伪造
 | 专家画像 (product/ad-buyer/local-business) | ✅ M1.5/v0.3 |
 | 共享切片库 + 三专家切片库 | ✅ v0.3 |
 | Brief Workshop + Inferrer + Validator | ✅ M2 |
-| Orchestrator (DAG 调度骨架 + --execute) | ✅ M2/M3 |
+| Orchestrator (scenario DAG 调度 + --execute) | ✅ v0.13 |
 | mode/jury-react + mode/aggregate-consensus + mode/render-report | ✅ M3 |
-| 飞书报告渲染(lark_renderer.py,默认 dry-run + 本地降级) | ✅ M3 |
+| 飞书报告渲染(lark_renderer.py,DocxXML + lark-doc v2;默认 dry-run,真发布失败显式报错) | ✅ v0.13 |
 | 顶层入口 jury_review.py | ✅ M3 |
-| 端到端 case (短视频评审) | ✅ M3 |
+| 多场景端到端回归(PRD/设计/界面/短视频/详情页/商品卡/营销文案/HCI) | ✅ v0.13 |
 | expert-roundtable references 镜像 | ✅ v0.3 |
 | HCI observe 脚本(heatmap/cross-page/annotate-issues) | ✅ v0.11 execute 接入 |
 | Phase C 决策透镜 prompt + synthesize bundle | ✅ v0.3 |
@@ -128,9 +128,11 @@ orchestrator 会回查 evidence 是否在用户上下文可匹配,**杜绝伪造
 | 源仓审计计划收口 + 迁移/模式文档 | ✅ v0.10 起步 |
 | aggregate-distribution-gap 独立实现 + 回归 | ✅ v0.10 |
 | persona-fit/persona-sample/distribution-gap/HCI execute 收尾 | ✅ v0.11 |
-| HTML 优先动态报告 + design.md 风格约束 + DocxXML 草稿 | ✅ v0.11 |
+| HTML 优先动态报告 + design.md 风格约束 + DocxXML | ✅ v0.13 |
+| 场景配置单一事实源(default_personas/artifact_aliases/DAG required modes) | ✅ v0.12 |
+| DocxXML 飞书发布链路(--lark-execute 真创建,失败不伪降级) | ✅ v0.13 |
 
-## 七、Quickstart(短视频 MVP)
+## 七、Quickstart
 
 ```bash
 # 一条命令贯穿 brief → DAG → 模式 → 报告
@@ -196,16 +198,16 @@ python3 tools/regression.py \
 5. `reaction_handoff.py --check-filled` 校验完整性。
 6. `pipeline.py --filled-bundle-file` 恢复 aggregate/synthesize/report。
 
-产物落 `/tmp/jp_m3/{reactions,consensus,reports}/<session_id>.*`:
+产物落 `<runtime-dir>/{reactions,consensus,reports}/<session_id>.*`:
 - `reactions/<sid>.bundle.json` — jury-react 多人 prompt 包
 - `reactions/<sid>.filled.json` — mock responder 或宿主 Agent/模型回填后的 reactions
 - `consensus/<sid>.json` — 共识/分歧/5 维矩阵
 - `reports/<sid>.html` — 场景/Mode 自适应 HTML 报告(优先阅读)
 - `reports/<sid>.md` — Markdown fallback 报告
-- `reports/<sid>.docx.xml` — expert-roundtable/飞书 DocxXML 草稿
-- `reports/<sid>.lark.md` — 飞书发布(lark-cli 不可用时的本地降级副本)
+- `reports/<sid>.docx.xml` — 飞书 DocxXML;`--lark-execute` 时用于 lark-doc v2 创建
+- `publish` JSON 字段 — 默认 `DRY_RUN`;真发布失败时为 `PUBLISH_FAILED`
 
-⚠️ MVP 默认走 `mock_llm_responder` 测试桩;正式使用时由宿主 Agent/模型回填 reaction。
+⚠️ 本地回归默认走 `mock_llm_responder` 测试桩;正式使用时由宿主 Agent/模型回填 reaction。
 
 ## 八、对齐设计文档
 

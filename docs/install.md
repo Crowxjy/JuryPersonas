@@ -42,6 +42,18 @@ python3 tools/regression.py \
 
 回归只写 `/tmp` 下的运行产物,不会修改源码。
 
+## 飞书发布
+
+默认执行链路只做飞书发布 dry-run,输出 lark-doc v2 创建命令预览,不会写入飞书。
+
+如需真实创建飞书文档:
+
+1. 安装并配置 `lark-cli`。
+2. 按 `lark-doc` v2 要求完成文档创建权限授权。
+3. 运行 pipeline 时追加 `--lark-execute`。
+
+`--lark-execute` 会使用 `reports/<sid>.docx.xml` 作为发布源,调用 `lark-cli docs +create --api-version v2 --doc-format xml --content ...`。如果 `lark-cli` 缺失或发布失败,顶层状态为 `PUBLISH_FAILED`,不会本地伪降级为成功。
+
 ## 默认陪审团
 
 `jury_review.py` 和 `orchestrator/pipeline.py --execute` 支持不传 `--personas`;此时会读取对应 `scenarios/review-*.md` frontmatter 中的 `default_personas.role_ids`。显式传入 `--personas` 时永远以用户指定为准。

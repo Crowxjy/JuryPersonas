@@ -4,7 +4,9 @@
 
 ## 项目状态
 
-🚧 **本地 v0.12 语义修复中**(2026-06-22 启动)
+✅ **main 最新状态: v0.13 Skill runtime + DocxXML 飞书发布链路已对齐**(2026-06-25)
+
+当前主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。
 
 完整架构设计:[docs/architecture-v0.2.md](docs/architecture-v0.2.md)
 

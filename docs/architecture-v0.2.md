@@ -739,3 +739,11 @@ Agent 在每一轮收集后必须输出以下结构化判断（落 [.runtime/bri
   - ✅ 新增 `reporting/html_renderer.py` 与 `reporting/design.md`,报告按场景和实际 Mode 组合选择 HTML 布局,HTML 为优先产物
   - ✅ 新增 `reporting/docx_xml_renderer.py`,输出 expert-roundtable/飞书兼容 DocxXML 草稿,为后续 lark-doc 图片入表留接口
   - ✅ `tools/regression.py` 扩展到 29 步,覆盖 HCI、persona-fit、persona-sample + distribution-gap、HTML/DocxXML 产物
+  - **v0.2.22（2026-06-25）**：v0.12:Skill runtime 结构对齐
+    - ✅ `scenarios/review-*.md` frontmatter 增加 `artifact_aliases` 与 `default_personas`,场景选择和默认陪审团不再硬编码在 `dag.py`
+    - ✅ PRD/短视频等场景把实际必跑 observe mode 写入 `required`,执行层只按 `dag_modes` 运行,不再按 scenario 隐式追加
+    - ✅ `tools/regression.py` 扩展到 38 步,新增各场景 plan 必须显式包含 observe mode 的断言
+  - **v0.2.23（2026-06-25）**：v0.13:DocxXML 飞书发布链路
+    - ✅ `reporting/lark_renderer.py` 改为 lark-doc v2 创建语义:`docs +create --api-version v2 --doc-format xml|markdown --content ...`
+    - ✅ `orchestrator/pipeline.py` 发布源从 Markdown 改为 `report_docx_xml`;默认仍 dry-run
+    - ✅ `--lark-execute` 下发布失败提升为顶层 `PUBLISH_FAILED`,退出码非 0,不再 local fallback 或 fake URL
