@@ -113,7 +113,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--lark-execute",
         action="store_true",
-        help="飞书发布关闭 dry-run(默认 dry-run / lark-cli 不可用降级本地)",
+        help="飞书发布关闭 dry-run;需要 lark-cli + docs v2 权限,失败不会本地伪降级",
     )
     parser.add_argument("--current-dist", help="persona-sample / distribution-gap 当前分布 JSON")
     parser.add_argument("--target-dist", help="persona-sample / distribution-gap 目标分布 JSON")
@@ -243,7 +243,7 @@ def finalize_filled_bundle(
         artifacts=artifacts,
     )
     artifacts.update(report_artifacts)
-    report_path = Path(report_artifacts["report_md"])
+    publish_report_path = Path(report_artifacts["report_docx_xml"])
     log_event(
         "resume.render_report.done",
         md=report_artifacts["report_md"],
@@ -251,24 +251,30 @@ def finalize_filled_bundle(
         docx_xml=report_artifacts["report_docx_xml"],
     )
 
-    log_event("resume.publish.start", dry_run=not lark_execute)
+    log_event("resume.publish.start", dry_run=not lark_execute, source=publish_report_path)
     publish_result = lark_renderer.publish(
-        report_path,
+        publish_report_path,
         title=f"陪审团评审报告 · {sid}",
         session_id=sid,
         local_only=False,
         dry_run=not lark_execute,
         output_dir=reports_dir,
         execute=lark_execute,
+        doc_format="xml",
     )
     log_event(
         "resume.publish.done",
         status=publish_result.get("status"),
         saved_to=publish_result.get("saved_to"),
     )
+    status = (
+        "PUBLISH_FAILED"
+        if lark_execute and publish_result.get("status") != "OK"
+        else "OK"
+    )
 
     result = {
-        "status": "OK",
+        "status": status,
         "session_id": sid,
         "n_participants": pack["n_participants"],
         "artifacts": artifacts,
@@ -416,21 +422,27 @@ def execute_dag(
         artifacts=artifacts,
     )
     artifacts.update(report_artifacts)
-    report_path = Path(report_artifacts["report_md"])
+    publish_report_path = Path(report_artifacts["report_docx_xml"])
 
-    # Step 5: lark publish(默认 dry-run 或 local fallback)
+    # Step 5: lark publish(默认 dry-run; --lark-execute 真发布,失败即 ERROR)
     publish_result = lark_renderer.publish(
-        report_path,
+        publish_report_path,
         title=f"陪审团评审报告 · {sid}",
         session_id=sid,
         local_only=False,
         dry_run=not lark_execute,
         output_dir=reports_dir,
         execute=lark_execute,
+        doc_format="xml",
+    )
+    status = (
+        "PUBLISH_FAILED"
+        if lark_execute and publish_result.get("status") != "OK"
+        else "OK"
     )
 
     return {
-        "status": "OK",
+        "status": status,
         "session_id": sid,
         "n_participants": pack["n_participants"],
         "artifacts": artifacts,

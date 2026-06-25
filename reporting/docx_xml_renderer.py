@@ -2,9 +2,10 @@
 """
 docx_xml_renderer.py - expert-roundtable compatible DocxXML draft renderer.
 
-This does not publish to Lark by itself. It emits a conservative DocxXML-like
-draft so downstream lark-doc flows can replace image placeholders and create the
-strict Feishu report when needed.
+This renderer does not call Lark by itself. It emits a conservative
+DocxXML-like draft. reporting/lark_renderer.py can create the Feishu doc from
+this XML; image placeholders still need a later lark-doc media/block_replace
+pass when strict in-table image embedding is required.
 """
 from __future__ import annotations
 
@@ -85,7 +86,7 @@ def render_docx_xml(data: dict[str, Any]) -> str:
         "<h3>待办总结</h3>",
         rows(scores, list(scores[0].keys())) if scores else p("暂无评分均值。"),
         "<blockquote>",
-        p("本 DocxXML 为 expert-roundtable 兼容草稿。图片入表、block_replace 与真实飞书发布由 lark-doc 流程完成。"),
+        p("本 DocxXML 可由 lark_renderer 直接创建飞书文档。图片入表与 block_replace 仍需后续 lark-doc media 流程完成。"),
         "</blockquote>",
     ]
     return "\n".join(xml) + "\n"

@@ -82,7 +82,7 @@ python3 orchestrator/pipeline.py \
 - `mode/aggregate-consensus`
 - `mode/synthesize-tension` 和 `mode/synthesize-paths`(如 DAG 包含)
 - `mode/render-report`
-- 飞书发布 dry-run / 本地降级
+- 飞书发布默认 dry-run;传 `--lark-execute` 时用 DocxXML 真创建飞书文档,失败显式返回 ERROR
 
 ## 三、错误处理
 

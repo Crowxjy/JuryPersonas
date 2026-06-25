@@ -310,6 +310,8 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
                 "paths_bundle",
                 "report_md",
                 "report_html",
+                '"doc_format": "xml"',
+                ".docx.xml",
             ],
         )
     )
