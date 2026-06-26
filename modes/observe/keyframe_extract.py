@@ -45,13 +45,29 @@ def normalize_keyframes(artifact: dict) -> list[dict]:
         if not isinstance(frame, dict):
             continue
         ts = normalize_ts(frame.get("ts_sec", frame.get("time_sec", frame.get("time"))))
+        observed = frame.get("observed", True)
+        if observed is False:
+            description = ""
+            voiceover = ""
+            image = None
+            needs_visual_description = False
+        else:
+            description = frame.get("description") or frame.get("visual") or ""
+            voiceover = frame.get("voiceover") or frame.get("text") or frame.get("caption") or ""
+            image = frame.get("image") or frame.get("image_path") or frame.get("url")
+            needs_visual_description = bool(frame.get("needs_visual_description")) or not bool(description)
         frames.append(
             {
                 "index": idx,
                 "ts_sec": ts,
-                "description": frame.get("description") or frame.get("visual") or "",
-                "voiceover": frame.get("voiceover") or frame.get("text") or frame.get("caption") or "",
-                "image": frame.get("image") or frame.get("image_path") or frame.get("url"),
+                "description": description,
+                "voiceover": voiceover,
+                "image": image,
+                "image_path": image,
+                "observed": observed,
+                "source": frame.get("source"),
+                "confidence": frame.get("confidence"),
+                "needs_visual_description": needs_visual_description,
             }
         )
     frames.sort(key=lambda x: (x["ts_sec"] is None, x["ts_sec"] if x["ts_sec"] is not None else x["index"]))
@@ -85,6 +101,8 @@ def build_keyframe_observation(artifact: dict, *, source: str | None = None) -> 
     transcript = transcript_segments(artifact)
     locator = artifact.get("locator") or artifact.get("path") or artifact.get("url") or source
     suffix = Path(str(locator)).suffix.lower() if locator else ""
+    observed_frames = [frame for frame in frames if frame.get("observed", True) is not False]
+    inferred_frames = [frame for frame in frames if frame.get("observed", True) is False]
 
     if not frames and suffix in VIDEO_SUFFIXES:
         return {
@@ -110,6 +128,11 @@ def build_keyframe_observation(artifact: dict, *, source: str | None = None) -> 
         "transcript": transcript,
         "timeline_summary": {
             "n_key_frames": len(frames),
+            "n_observed_key_frames": len(observed_frames),
+            "n_inferred_key_frames": len(inferred_frames),
+            "n_frames_needing_visual_description": len(
+                [frame for frame in observed_frames if frame.get("needs_visual_description")]
+            ),
             "n_transcript_segments": len(transcript),
             "first_ts_sec": frames[0]["ts_sec"] if frames else None,
             "last_ts_sec": frames[-1]["ts_sec"] if frames else None,
@@ -118,6 +141,7 @@ def build_keyframe_observation(artifact: dict, *, source: str | None = None) -> 
             "normalized_supplied_frames_only": True,
             "no_video_decoding": True,
             "do_not_hallucinate_missing_visuals": True,
+            "inferred_frames_are_not_evidence": True,
         },
     }
 

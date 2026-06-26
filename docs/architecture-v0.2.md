@@ -753,3 +753,9 @@ Agent 在每一轮收集后必须输出以下结构化判断（落 [.runtime/bri
     - ✅ `ad-buyer` 大知识库仅在已知 artifact 类型下做保守预算压缩,避免 400KB+ system prompt 稀释判断
     - ✅ HTML 报告风格切换为 `/Users/bytedance/Downloads/linear` 的 Linear 深色信息面板风格
     - ✅ `tools/regression.py` 扩展到 43 步,覆盖表格解析、copy 抽取、prompt 体积和非 mock 边界声明
+  - **v0.2.25（2026-06-26）**：v0.15:真实短视频证据流水线
+    - ✅ 新增 `tools/video_evidence/`,支持抖音 URL → real `play_addr` → mp4 → 等距抽帧 → 抽音 → ASR → `artifact.realframe.json`
+    - ✅ `keyframe_extract` 保留真实抽帧图片路径和 `needs_visual_description`,并清空 `observed:false` 推断帧的画面/台词
+    - ✅ `jury-react` 短视频 prompt 只引用 `observed:true`/未标推断的帧;缺画面描述时要求先看图,否则必须承认看不清
+    - ✅ HTML 报告预览真实抽帧,并提示排除的 `observed:false` 推断帧
+    - ✅ `tools/regression.py` 扩展到 47 步,覆盖真实抽帧 artifact builder 与推断帧防泄漏

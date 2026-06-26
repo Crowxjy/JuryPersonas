@@ -277,6 +277,64 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
         )
     )
 
+    realframe_work = runtime_root / "realframe_builder"
+    realframe_frames = realframe_work / "frames"
+    realframe_frames.mkdir(parents=True, exist_ok=True)
+    (realframe_frames / "f_00001.jpg").write_bytes(b"fake-jpeg-1")
+    (realframe_frames / "f_00002.jpg").write_bytes(b"fake-jpeg-2")
+    (realframe_work / "meta.json").write_text(
+        json.dumps(
+            {
+                "desc": "真实抽帧测试视频",
+                "duration": 6000,
+                "statistics": {"digg_count": 10},
+                "play_addr": ["https://example.invalid/video.mp4"],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (realframe_work / "transcript.txt").write_text("真实口播转写", encoding="utf-8")
+    realframe_descriptions = realframe_work / "frame_descriptions.json"
+    realframe_descriptions.write_text(
+        json.dumps({"f_00001.jpg": "真实片头画面"}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    realframe_artifact = realframe_work / "artifact.realframe.json"
+    steps.append(
+        run_cmd(
+            "realframe_artifact_builder",
+            [
+                "node",
+                "tools/video_evidence/build_artifact.js",
+                "--work",
+                str(realframe_work),
+                "--descriptions",
+                str(realframe_descriptions),
+                "--frame-interval",
+                "3",
+                "--out",
+                str(realframe_artifact),
+            ],
+            runtime_root=runtime_root,
+            check_stdout_contains=["frames=2", "needs_visual_description=1"],
+        )
+    )
+    realframe_data = json.loads(realframe_artifact.read_text(encoding="utf-8"))
+    if realframe_data["key_frames"][0]["observed"] is not True:
+        raise StepFailed("realframe_artifact_builder: extracted frames must be observed=true")
+    if realframe_data["key_frames"][0]["description"] != "真实片头画面":
+        raise StepFailed("realframe_artifact_builder: frame description was not merged")
+    if realframe_data["key_frames"][1]["needs_visual_description"] is not True:
+        raise StepFailed("realframe_artifact_builder: missing visual-description guard")
+    steps.append(
+        record_check(
+            "realframe_artifact_builder_assert",
+            frames=len(realframe_data["key_frames"]),
+        )
+    )
+
     table_bundle_path = runtime_root / "table_reaction_bundle.json"
     table_bundle_path.write_text(
         json.dumps(
@@ -896,6 +954,66 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
         )
     )
 
+    inferred_video_artifact = runtime_root / "short_video_inferred_frames.json"
+    inferred_video_artifact.write_text(
+        json.dumps(
+            {
+                "artifact_type": "短视频",
+                "title": "测试短视频",
+                "duration_sec": 30,
+                "platform": "抖音",
+                "key_frames": [
+                    {
+                        "ts_sec": 8,
+                        "description": "基于标题推断的锅气特写",
+                        "voiceover": "这不是实际转写台词",
+                        "observed": False,
+                    }
+                ],
+                "cta": {"text": "点击下单", "ts_sec": 28},
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    inferred_prompt_path = runtime_root / "short_video_inferred.bundle.json"
+    steps.append(
+        run_cmd(
+            "short_video_inferred_frames_guard",
+            [
+                sys.executable,
+                "modes/jury/jury_react.py",
+                "--brief-file",
+                "tests/fixtures/short_video_demo/brief.json",
+                "--artifact-file",
+                str(inferred_video_artifact),
+                "--persona-ids",
+                "consumer-bao-mom-tier2",
+                "--scenario",
+                "review-short-video",
+                "--output",
+                str(inferred_prompt_path),
+                "--pretty",
+            ],
+            runtime_root=runtime_root,
+            check_stdout_contains=["jury-react bundle"],
+        )
+    )
+    inferred_bundle = json.loads(inferred_prompt_path.read_text(encoding="utf-8"))
+    inferred_bundle_text = json.dumps(inferred_bundle, ensure_ascii=False)
+    inferred_prompt = inferred_bundle["participants"][0]["user_prompt"]
+    if "基于标题推断的锅气特写" in inferred_bundle_text or "这不是实际转写台词" in inferred_bundle_text:
+        raise StepFailed("short_video_inferred_frames_guard: inferred frame leaked into jury bundle")
+    if "observed:false 推断帧" not in inferred_prompt or "画面看不清" not in inferred_prompt:
+        raise StepFailed("short_video_inferred_frames_guard: missing inferred-frame boundary warning")
+    steps.append(
+        record_check(
+            "short_video_inferred_frames_guard_assert",
+            prompt_chars=len(inferred_prompt),
+        )
+    )
+
     resume_runtime = runtime_root / "handoff_resume"
     steps.append(
         run_cmd(
@@ -1043,6 +1161,7 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
             "visual_artifacts": "design/screen/detail_page/product_card e2e passed",
             "hci": "heatmap A + annotate issues e2e passed",
             "marketing_copy": "copy_extract + 6 complaints / 3 consensus",
+            "realframe_video": "Douyin realframe artifact builder + inferred-frame guard passed",
               "dag_stage": "observe handoff / full e2e / standalone aggregate passed",
             "persona_fit_sample": "fit/sample execute wiring passed",
             "evaluation": "2 seed cases / avg_gold_coverage=1.0",

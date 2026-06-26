@@ -78,6 +78,7 @@ SHORT_VIDEO_USER_PROMPT_TEMPLATE = """\
 - 标题: {title}
 - 平台: {platform}
 - 时长: {duration_sec} 秒
+- 素材边界: {evidence_boundary}
 - 关键帧序列(按时间轴):
 {key_frames_block}
 - CTA: {cta_text}(出现在 {cta_ts} 秒)
@@ -236,21 +237,48 @@ def load_json_file(path: Path, label: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def render_short_video_user_prompt(brief: dict, artifact: dict) -> str:
-    key_frames = artifact.get("key_frames", [])
-    if key_frames:
+def short_video_key_frames(artifact: dict, observations: dict | None = None) -> list[dict]:
+    keyframe_obs = (observations or {}).get("keyframe_extract")
+    if isinstance(keyframe_obs, dict) and keyframe_obs.get("key_frames"):
+        return keyframe_obs.get("key_frames", [])
+    return artifact.get("key_frames", [])
+
+
+def render_short_video_user_prompt(brief: dict, artifact: dict, observations: dict | None = None) -> str:
+    key_frames = short_video_key_frames(artifact, observations)
+    observed_key_frames = [kf for kf in key_frames if kf.get("observed", True) is not False]
+    inferred_key_frames = [kf for kf in key_frames if kf.get("observed", True) is False]
+    frames_needing_visual_description = [
+        kf for kf in observed_key_frames if kf.get("needs_visual_description")
+    ]
+    inferred_ts = [str(kf.get("ts_sec", "?")) for kf in inferred_key_frames]
+    evidence_boundary = "只能引用 observed=true 或未标 observed 的关键帧。"
+    if inferred_key_frames:
+        evidence_boundary += (
+            f"已排除 {len(inferred_key_frames)} 个 observed:false 推断帧"
+            f"({', '.join(inferred_ts)} 秒);这些帧不能作为画面事实。"
+        )
+    if frames_needing_visual_description:
+        evidence_boundary += (
+            f"有 {len(frames_needing_visual_description)} 个真实抽帧缺少画面描述;"
+            "如你没有实际查看图片,不得评价画面内容。"
+        )
+    if observed_key_frames:
         kf_lines = []
-        for kf in key_frames:
+        for kf in observed_key_frames:
             ts = kf.get("ts_sec", "?")
-            desc = kf.get("description", "")
+            desc = kf.get("description") or "(画面描述未填写;未查看图片时必须说画面看不清)"
             vo = kf.get("voiceover")
+            image = kf.get("image") or kf.get("image_path")
             line = f"  - [{ts}s] {desc}"
+            if image:
+                line += f" / 图片: {image}"
             if vo:
                 line += f" / 台词: \"{vo}\""
             kf_lines.append(line)
         kf_block = "\n".join(kf_lines)
     else:
-        kf_block = "  - (无关键帧,只有视频链接,你必须明确指出'画面看不清,我没法准确评论')"
+        kf_block = "  - (无可验证关键帧,你必须明确指出'画面看不清,我没法准确评论')"
 
     cta = artifact.get("cta") or {}
     claims = artifact.get("claims", [])
@@ -259,6 +287,7 @@ def render_short_video_user_prompt(brief: dict, artifact: dict) -> str:
         title=artifact.get("title", "(未提供)"),
         platform=artifact.get("platform", "(未提供)"),
         duration_sec=artifact.get("duration_sec", "(未提供)"),
+        evidence_boundary=evidence_boundary,
         key_frames_block=kf_block,
         cta_text=cta.get("text", "(无)"),
         cta_ts=cta.get("ts_sec", "?"),
@@ -270,6 +299,32 @@ def render_short_video_user_prompt(brief: dict, artifact: dict) -> str:
 
 def compact_json(data: object) -> str:
     return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+def redact_inferred_keyframes(artifact: dict) -> dict:
+    """Remove inferred visual descriptions before storing artifact in handoff bundle."""
+    redacted = json.loads(json.dumps(artifact, ensure_ascii=False))
+    key_frames = redacted.get("key_frames") or redacted.get("keyframes") or redacted.get("storyboard") or []
+    for frame in key_frames:
+        if not isinstance(frame, dict) or frame.get("observed", True) is not False:
+            continue
+        for key in ("description", "visual", "voiceover", "text", "caption", "image", "image_path", "url"):
+            frame.pop(key, None)
+        frame["excluded_from_evidence"] = True
+        frame["exclusion_reason"] = "observed:false inferred frame"
+    return redacted
+
+
+def redact_short_video_observations(observations: dict | None) -> dict:
+    if not observations:
+        return {}
+    redacted = json.loads(json.dumps(observations, ensure_ascii=False))
+    keyframe_obs = redacted.get("keyframe_extract")
+    if isinstance(keyframe_obs, dict):
+        keyframe_obs["key_frames"] = redact_inferred_keyframes(
+            {"key_frames": keyframe_obs.get("key_frames", [])}
+        ).get("key_frames", [])
+    return redacted
 
 
 def render_generic_user_prompt(
@@ -296,7 +351,7 @@ def render_generic_user_prompt(
         artifact_title=artifact.get("title") or artifact.get("name") or "(未提供)",
         artifact_json=compact_json(artifact),
         observations_json=compact_json(observations or {}),
-          score_metrics_block=score_metrics_block,
+        score_metrics_block=score_metrics_block,
         target_audience=fields.get("target_audience", {}).get("value", "(未指定)"),
         key_concern=fields.get("key_concern", {}).get("value", "(未指定)"),
         distribution_intent=fields.get("distribution_intent", {}).get("value", "(未指定)"),
@@ -317,11 +372,7 @@ def build_jury_react_bundle(
 ) -> dict:
     renderer = SCENARIO_RENDERERS.get(scenario)
     if renderer:
-        user_prompt = renderer(brief, artifact)
-        if observations:
-            user_prompt += "\n\n## Observe 阶段补充观察\n\n```json\n"
-            user_prompt += compact_json(observations)
-            user_prompt += "\n```\n"
+        user_prompt = renderer(brief, artifact, observations=observations)
     else:
         user_prompt = render_generic_user_prompt(
             brief,
@@ -334,8 +385,8 @@ def build_jury_react_bundle(
         "mode": "mode/jury-react",
         "session_id": brief.get("session_id"),
         "scenario": scenario,
-        "artifact": artifact,
-        "observations": observations or {},
+        "artifact": redact_inferred_keyframes(artifact) if scenario == "review-short-video" else artifact,
+        "observations": redact_short_video_observations(observations) if scenario == "review-short-video" else (observations or {}),
         "brief_summary": {
             k: v.get("value") for k, v in brief.get("fields", {}).items()
         },

@@ -4,6 +4,7 @@
 
 1. 差评、人工标注、业务复盘数据用于什么。
 2. heatmap 等 observe 模式需要的模型资产缺失时会影响什么。
+3. 真实短视频证据流水线依赖哪些外部工具。
 
 ## 一、差评和标注数据
 
@@ -42,10 +43,26 @@
 缺少 MSI-Net 权重时:
 
 - 不影响 PRD、营销文案、设计稿文本描述、单界面文本描述、详情页、商品卡、短视频 keyframe JSON 等已接入 e2e 的主链路。
+- 不影响短视频 `tools/video_evidence` 已生成的 `artifact.realframe.json` 后续评审。
 - 只影响需要像素级/视觉显著性的 heatmap B 档。
 - `--engine auto` 会尝试加载本地权重或 HuggingFace 缓存;失败后需要用户确认是补权重还是接受 A 档 fallback。
 
-## 三、当前 Skill 可用性判断
+## 三、真实短视频证据流水线
+
+`tools/video_evidence/` 是可选链路,用于把抖音 URL 转成可复查的视频证据:
+
+- Node/Puppeteer:拦截 `aweme_detail` 获取真实 `play_addr`。
+- curl:下载 mp4。
+- ffmpeg:等距抽帧和抽音。
+- whisper.cpp:可选 ASR。
+
+缺少这些依赖时:
+
+- 不影响普通 keyframe JSON / storyboard 输入的短视频评审。
+- 只影响“从抖音 URL 自动生成真实抽帧 artifact”这一步。
+- 不能用标题或 `observed:false` 推断帧代替真实画面证据。
+
+## 四、当前 Skill 可用性判断
 
 在没有真实差评/标注数据、没有 MSI-Net 权重的情况下,Skill 仍可用:
 
@@ -54,9 +71,11 @@
 - 可以跑当前本地完整回归(步数以 `tools/regression.py` 输出为准)。
 - 不能宣称已有真实线上覆盖率。
 - 不能宣称 heatmap B 档深度显著性可用,除非权重已恢复。
+- 不能宣称理解了真实视频画面,除非输入包含 `observed:true` 关键帧且画面描述来自实际看图。
 
-## 四、后续补齐顺序
+## 五、后续补齐顺序
 
 1. 先导入真实反馈 JSONL,提升评测结论可信度。
 2. 如真实项目需要视觉热力图,再恢复 `assets/msinet_tf/` 下的 MSI-Net SavedModel。
-3. 如果只评审文本化的设计/页面/商品卡描述,暂不需要 heatmap 权重。
+3. 如真实项目需要短视频 URL 自动取证,先跑通 `tools/video_evidence/setup_deps.sh` 和真实平台登录/访问环境。
+4. 如果只评审文本化的设计/页面/商品卡描述,暂不需要 heatmap 权重。

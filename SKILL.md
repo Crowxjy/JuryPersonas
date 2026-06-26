@@ -24,7 +24,7 @@ description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短
 | `mode/heatmap` | ✅ v0.11 A 档 execute,B 档可选 | 截图 | 注意力热力图 + HCI 指标 |
 | `mode/cross-page` | ✅ v0.11 execute(有 ≥2 metrics 时) | 多张截图 | 跨页面动线 |
 | `mode/annotate-issues` | ✅ v0.11 execute | 截图 + semantic.json + issues.json | 页面问题红框标注图 |
-| `mode/keyframe-extract` | ✅ v0.6 | 已提供关键帧 JSON / storyboard | 规范化关键帧 + 时序切片 |
+| `mode/keyframe-extract` | ✅ v0.15 | 已提供关键帧 JSON / storyboard / `tools/video_evidence` 真实抽帧 artifact | 规范化关键帧 + 时序切片;排除 `observed:false` 推断帧 |
 | `mode/prd-extract` | ✅ v0.6 | PRD Markdown/文本 | 结构化标题/需求/风险/指标/待确认 |
 | `mode/copy-extract` | ✅ v0.6 | 营销文案 Markdown/文本 | 结构/利益点/证据/CTA/风险词/渠道线索 |
 | `mode/design-extract` | ✅ v0.7 | 设计稿 Markdown/文本/JSON 描述 | 页面结构/CTA/信任证据/缺失字段 |
@@ -65,6 +65,19 @@ python3 orchestrator/pipeline.py --brief-file <brief.json> --filled-bundle-file 
 python3 tools/persona_dedupe.py --json
 python3 tools/lint.py
 ```
+
+### 真实短视频证据准备(可选)
+
+```bash
+VIDEO_URL=https://www.douyin.com/video/<aweme_id> \
+WORK=$HOME/.session/<sid>/douyin_run \
+bash tools/video_evidence/run_douyin_realframe_pipeline.sh
+```
+
+该流水线只负责取真实 `play_addr`、下载视频、抽帧、抽音和 ASR,并生成
+`artifact.realframe.json`。抽帧图片为 `observed:true`;若画面描述为空,宿主
+Agent/多模态模型必须先查看图片并补 `frame_descriptions.json`,否则 jury-react
+会要求陪审员承认"画面看不清",不能脑补画面。
 
 ## 四、Brief 充分性判定 Harness
 

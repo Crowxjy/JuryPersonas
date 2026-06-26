@@ -4,9 +4,9 @@
 
 ## 项目状态
 
-✅ **当前本地状态: v0.14 契约修复 + Linear HTML 报告风格已对齐**(2026-06-25,待提交)
+✅ **当前本地状态: v0.15 真实视频证据流水线已接入**(2026-06-26,待提交)
 
-当前主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。当前本地回归覆盖 43 步,新增了陪审反应表格兼容解析、copy-extract 泛化抽取、ad-buyer 大知识库预算压缩和非 mock 报告声明检查。
+当前主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。当前本地回归覆盖 47 步;短视频可选使用 `tools/video_evidence/` 取真实 `play_addr`、下载视频、等距抽帧、抽音与 ASR,并把真实帧转成 `observed:true` artifact。
 
 完整架构设计:[docs/architecture-v0.2.md](docs/architecture-v0.2.md)
 
@@ -40,6 +40,16 @@ python3 jury_review.py \
 python3 orchestrator/pipeline.py --brief-file tests/fixtures/prd_demo/brief.json
 ```
 
+### 真实短视频证据流水线(可选)
+
+```bash
+VIDEO_URL=https://www.douyin.com/video/<aweme_id> \
+WORK=$HOME/.session/<sid>/douyin_run \
+bash tools/video_evidence/run_douyin_realframe_pipeline.sh
+```
+
+流水线产物见 `tools/video_evidence/README.md`。注意:抽出的图片是真实证据,但空白画面描述仍需宿主 Agent/多模态模型查看图片后填写;未查看图片时陪审员不得评价画面内容。
+
 ## 上游项目
 
 - [EAgents](https://github.com/Crowxjy/EAgents) — 消费者群体流失评审,提供画像 + 采样 + 短视频评审
@@ -52,6 +62,7 @@ python3 orchestrator/pipeline.py --brief-file tests/fixtures/prd_demo/brief.json
 - 新增场景 → 见 [scenarios/](scenarios/) 现有模板
 - 新增模式 → 见 [docs/architecture-v0.2.md §3.1](docs/architecture-v0.2.md)
 - 宿主 Agent/模型正式使用流 → 见 [docs/host-agent-workflow.md](docs/host-agent-workflow.md)
+- 真实短视频证据流水线 → 见 [tools/video_evidence/README.md](tools/video_evidence/README.md)
 - HTML 报告执行约束 → 见 [reporting/design.md](reporting/design.md);当前视觉参考为 `/Users/bytedance/Downloads/linear`,[reporting/reference-design.md](reporting/reference-design.md) 仅保留历史 SpaceX-inspired 参考
 - 源仓迁移映射 → 见 [docs/migration-guide.md](docs/migration-guide.md)
 - 场景模式 cookbook → 见 [docs/mode-cookbook.md](docs/mode-cookbook.md)

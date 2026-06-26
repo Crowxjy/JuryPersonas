@@ -69,6 +69,7 @@ summary { cursor:pointer; font-weight:650; color:var(--text); }
 .scorebar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--red),var(--amber),var(--green)); }
 .media { margin-top:14px; }
 .media img { width:100%; max-height:620px; object-fit:contain; border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-elev); }
+.frame-thumb { display:block; width:160px; max-height:220px; object-fit:contain; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--bg-elev); }
 .small { font-size:12.5px; }
 .score-note { margin:10px 0 16px; color:var(--text-3); font-size:13px; }
 .method-note { margin:0 0 16px; color:var(--text-2); }
@@ -343,6 +344,49 @@ def render_media_artifacts(data: dict[str, Any]) -> str:
     return "".join(chunks)
 
 
+def local_image_src(path_value: Any) -> str:
+    if not path_value:
+        return ""
+    raw = str(path_value)
+    path = Path(raw)
+    if path.is_absolute() and path.exists():
+        return path.as_uri()
+    return raw
+
+
+def render_video_keyframe_table(frames: list[dict[str, Any]]) -> str:
+    if not frames:
+        return ""
+    rows = []
+    for frame in frames:
+        image = frame.get("image") or frame.get("image_path")
+        if image:
+            image_cell = (
+                f'<img class="frame-thumb" src="{esc(local_image_src(image))}" alt="frame {esc(frame.get("ts_sec"))}"/>'
+                f'<p class="small muted">{esc(image)}</p>'
+            )
+        else:
+            image_cell = '<span class="muted">未提供</span>'
+        desc = frame.get("description") or (
+            "真实抽帧,但画面描述未填写;未查看图片时不能评价画面。"
+            if frame.get("needs_visual_description")
+            else "未填写"
+        )
+        rows.append(
+            "<tr>"
+            f"<td>{esc(frame.get('ts_sec'))}s</td>"
+            f"<td>{image_cell}</td>"
+            f"<td>{esc(desc)}</td>"
+            f"<td>{esc(frame.get('voiceover') or '无')}</td>"
+            "</tr>"
+        )
+    return (
+        '<div class="table-wrap"><table><thead><tr>'
+        '<th>时间点</th><th>真实抽帧</th><th>画面/元素</th><th>口播</th>'
+        f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
+    )
+
+
 def render_observations(data: dict[str, Any], layout: str) -> str:
     observations = data.get("observations", {})
     if not observations:
@@ -368,20 +412,24 @@ def render_observations(data: dict[str, Any], layout: str) -> str:
     chunks = ['<section class="card soft"><h2>分析依据</h2>']
     if layout == "video_review" and observations.get("keyframe_extract"):
         keyframe = observations.get("keyframe_extract") or {}
-        rows = [
-            {
-                "时间点": f"{frame.get('ts_sec')}s",
-                "画面/元素": frame.get("description"),
-                "口播": frame.get("voiceover") or "无",
-            }
-            for frame in keyframe.get("key_frames", [])
-        ]
+        all_frames = keyframe.get("key_frames", [])
+        observed_frames = [frame for frame in all_frames if frame.get("observed", True) is not False]
+        inferred_frames = [frame for frame in all_frames if frame.get("observed", True) is False]
         boundary = keyframe.get("boundary", {})
         chunks.append(
             '<p class="method-note">短视频评审基于提供的关键帧、口播和结构化素材理解内容。'
             "本次没有解码完整视频文件,因此不会声称看到了未提供的画面。</p>"
         )
-        chunks.append(render_table(rows))
+        if observed_frames:
+            chunks.append(render_video_keyframe_table(observed_frames))
+        else:
+            chunks.append('<p class="danger">未提供可验证关键帧;本次不能声称已理解完整视频画面。</p>')
+        if inferred_frames:
+            inferred_ts = ", ".join(str(frame.get("ts_sec", "?")) for frame in inferred_frames)
+            chunks.append(
+                f'<p class="small muted">已排除 {len(inferred_frames)} 个 observed:false 推断帧'
+                f"({esc(inferred_ts)} 秒);这些帧没有作为视频事实进入报告。</p>"
+            )
         if boundary:
             chunks.append(
                 '<p class="small muted">边界:仅使用已提供关键帧/口播;缺失画面不会被脑补。</p>'
