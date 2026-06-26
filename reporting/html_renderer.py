@@ -15,7 +15,7 @@ from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-DEFAULT_DESIGN = PROJECT_ROOT / "DESIGN.md"
+DEFAULT_DESIGN = SCRIPT_DIR / "design.md"
 
 
 def esc(value: Any) -> str:
@@ -24,52 +24,113 @@ def esc(value: Any) -> str:
 
 def css() -> str:
     return """
-:root { color-scheme: dark; --bg:#000000; --panel:#0a0a0a; --panel-soft:#111114; --ink:#ffffff; --muted:#c8c8d2; --line:#3a3a3f; --hairline:#242428; --cool:#f0f0fa; --warn:#f7c948; --ok:#8ff0b2; --danger:#ff8a80; --font-cjk:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif; --font-latin:D-DIN,"Arial Narrow",Arial,Verdana,sans-serif; }
-* { box-sizing: border-box; }
-html { background:var(--bg); }
-body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-cjk); line-height:1.68; letter-spacing:.02em; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
-body::before { content:""; position:fixed; inset:0; pointer-events:none; border:1px solid var(--hairline); }
-main { max-width:1180px; margin:0 auto; padding:24px 20px 64px; }
-.hero { min-height:auto; display:flex; flex-direction:column; justify-content:flex-end; background:linear-gradient(180deg,#050505,#000); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:28px 28px; }
-.hero h1 { max-width:940px; margin:0 0 14px; font-family:var(--font-cjk); font-size:clamp(28px,5vw,48px); font-weight:700; line-height:1.22; letter-spacing:.02em; overflow-wrap:anywhere; }
-.hero p { margin:0; color:var(--muted); font-size:13px; line-height:1.8; letter-spacing:.03em; }
-.badges { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
-.badge { display:inline-flex; align-items:center; min-height:32px; border-radius:32px; padding:7px 12px; color:var(--ink); border:1px solid var(--ink); background:transparent; font-family:var(--font-latin); font-size:12px; font-weight:700; line-height:1; letter-spacing:.08em; }
-.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:18px; }
-.card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:24px; margin-top:22px; }
-.card.primary { background:#f7f7f2; color:#080808; border-color:#f7f7f2; }
-.card.primary .muted { color:#505050; }
-.card.soft { background:var(--panel-soft); }
-.card h2 { margin:0 0 16px; font-family:var(--font-cjk); font-size:clamp(24px,3.5vw,38px); font-weight:700; line-height:1.24; letter-spacing:.02em; }
-.card h3 { margin:22px 0 10px; font-size:14px; font-weight:700; line-height:1.35; letter-spacing:.03em; }
-.muted { color:var(--muted); }
-.boundary { background:var(--bg); }
-.ok { color:var(--ok); font-weight:700; }
-.danger { color:var(--danger); font-weight:700; }
-.table-wrap { width:100%; overflow-x:auto; }
-table { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
-th,td { border:1px solid var(--line); padding:10px 12px; vertical-align:top; text-align:left; line-height:1.6; }
-th { background:var(--bg); color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.04em; }
-td { color:var(--ink); }
-pre { white-space:pre-wrap; background:var(--bg); color:var(--muted); padding:14px; border:1px solid var(--line); border-radius:6px; overflow:auto; max-height:340px; font-family:var(--font-latin); font-size:13px; line-height:1.55; letter-spacing:0; }
-details { border:1px solid var(--line); border-radius:8px; padding:14px; background:var(--panel-soft); }
-summary { cursor:pointer; font-weight:700; }
+:root { color-scheme:dark; --bg:#08090a; --bg-elev:#0e0f11; --panel:#141517; --panel-2:#191b1e; --line:#232629; --line-soft:#1c1e21; --text:#f7f8f8; --text-2:#b3b8bf; --text-3:#7c828a; --accent:#6e79d6; --accent-soft:rgba(110,121,214,.14); --red:#e5604d; --amber:#d6a24e; --green:#4eae6e; --radius:12px; --radius-sm:8px; --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace; --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif; }
+* { box-sizing:border-box; }
+html { background:var(--bg); scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px; line-height:1.62; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+::selection { background:var(--accent-soft); color:#fff; }
+.wrap { max-width:920px; margin:0 auto; padding:0 24px; }
+.topbar { position:sticky; top:0; z-index:20; border-bottom:1px solid var(--line); background:linear-gradient(180deg,rgba(12,13,15,.92),rgba(8,9,10,.88)); backdrop-filter:blur(8px); }
+.topbar-inner { height:60px; display:flex; align-items:center; gap:12px; }
+.topbar svg { width:24px; height:24px; color:var(--accent); flex:0 0 auto; }
+.topbar-title { font-size:15px; font-weight:650; letter-spacing:-.01em; }
+.topbar-sub { margin-left:auto; color:var(--text-3); font-family:var(--mono); font-size:12px; }
+main.wrap { padding-bottom:64px; }
+.hero { padding:56px 0 40px; border-bottom:1px solid var(--line-soft); }
+.hero h1 { max-width:820px; margin:0 0 16px; font-size:clamp(30px,5vw,42px); font-weight:680; line-height:1.16; letter-spacing:-.025em; background:linear-gradient(180deg,#fff,#c5c9cf); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; overflow-wrap:anywhere; }
+.hero p { max-width:660px; margin:0; color:var(--text-2); font-size:15px; line-height:1.75; }
+.badges { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+.badge { display:inline-flex; align-items:center; min-height:30px; border-radius:999px; padding:6px 12px; color:var(--text-2); border:1px solid var(--line); background:var(--panel); font-family:var(--mono); font-size:12px; line-height:1; }
+.badge.user { font-family:var(--sans); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin-top:28px; }
+.card.primary { position:relative; overflow:hidden; background:var(--panel); }
+.card.primary::before { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(120% 100% at 0% 0%,var(--accent-soft),transparent 55%); }
+.card.primary > * { position:relative; }
+.card.soft { background:var(--bg-elev); }
+.card h2 { margin:0 0 16px; font-size:21px; font-weight:640; line-height:1.28; letter-spacing:-.02em; }
+.card h3 { margin:22px 0 10px; font-size:14px; font-weight:650; line-height:1.35; color:var(--text); }
+.muted { color:var(--text-3); }
+.boundary { background:var(--bg-elev); }
+.ok { color:var(--green); font-weight:700; }
+.danger { color:var(--red); font-weight:700; }
+.table-wrap { width:100%; overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); }
+table { width:100%; border-collapse:collapse; margin:0; font-size:13.5px; }
+th,td { padding:12px 16px; vertical-align:top; text-align:left; line-height:1.6; border-bottom:1px solid var(--line-soft); }
+tr:last-child td { border-bottom:none; }
+th { background:var(--panel-2); color:var(--text-2); font-size:12.5px; font-weight:650; }
+td { color:var(--text-2); }
+pre { white-space:pre-wrap; background:var(--bg-elev); color:var(--text-2); padding:14px; border:1px solid var(--line); border-radius:var(--radius-sm); overflow:auto; max-height:340px; font-family:var(--mono); font-size:12.5px; line-height:1.55; }
+details { border:1px solid var(--line); border-radius:var(--radius); padding:14px; background:var(--panel); }
+summary { cursor:pointer; font-weight:650; color:var(--text); }
 .scorebar { display:flex; align-items:center; gap:10px; min-width:150px; }
-.scorebar span { font-family:var(--font-latin); font-variant-numeric:tabular-nums; }
-.scorebar-track { height:8px; flex:1; background:#242428; border-radius:999px; overflow:hidden; }
-.scorebar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--danger),var(--warn),var(--ok)); }
+.scorebar span { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+.scorebar-track { height:6px; flex:1; background:var(--line-soft); border-radius:999px; overflow:hidden; }
+.scorebar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--red),var(--amber),var(--green)); }
 .media { margin-top:14px; }
-.media img { width:100%; max-height:620px; object-fit:contain; border:1px solid var(--line); border-radius:8px; background:#050505; }
-.pill-row { display:flex; flex-wrap:wrap; gap:10px; }
-.small { font-size:13px; }
-a { color:var(--ink); text-decoration:underline; }
-@media print { :root { color-scheme: light; } body,html { background:#fff; color:#111; } .hero,.card { background:#fff; color:#111; border-color:#bbb; } pre,th { background:#f7f7f7; color:#111; } .badges { display:none; } }
-@media (max-width: 700px) { main { padding:16px 12px 44px; } .hero { padding:24px 18px; } .card { padding:16px; } }
+.media img { width:100%; max-height:620px; object-fit:contain; border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-elev); }
+.small { font-size:12.5px; }
+.score-note { margin:10px 0 16px; color:var(--text-3); font-size:13px; }
+.method-note { margin:0 0 16px; color:var(--text-2); }
+.quote { margin-top:14px; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--bg-elev); color:var(--text-2); }
+a { color:var(--text); text-decoration:underline; text-decoration-color:var(--accent); }
+ul { padding-left:20px; color:var(--text-2); }
+@media print { :root { color-scheme:light; } body,html { background:#fff; color:#111; } .topbar { position:static; } .card,.hero,details,pre,.table-wrap { background:#fff; color:#111; border-color:#bbb; } th { background:#f7f7f7; color:#111; } .badges { display:none; } }
+@media (max-width:720px) { .wrap { padding:0 16px; } .hero { padding:40px 0 30px; } .card { padding:18px; } .topbar-sub { display:none; } }
 """
 
 
 def list_modes(data: dict[str, Any]) -> list[str]:
     return [item.get("mode", "") for item in data.get("plan", {}).get("dag", [])]
+
+
+SCENARIO_LABELS = {
+    "review-short-video": "短视频成片评审",
+    "review-marketing-copy": "营销文案评审",
+    "review-prd": "PRD 评审",
+    "review-design": "设计稿评审",
+    "review-screen": "界面评审",
+    "review-detail-page": "详情页评审",
+    "review-product-card": "商品卡评审",
+}
+
+OBSERVATION_LABELS = {
+    "keyframe_extract": "关键帧与口播摘要",
+    "copy_extract": "文案结构抽取",
+    "prd_extract": "PRD 结构抽取",
+    "design_extract": "设计信息抽取",
+    "screen_extract": "界面信息抽取",
+    "detail_page_extract": "详情页信息抽取",
+    "product_card_extract": "商品卡信息抽取",
+    "heatmap": "HCI 视觉观察",
+    "distribution_gap": "人群分布差异",
+}
+
+SCORE_MEANINGS = {
+    "完播倾向": "这个角色主观上愿不愿意把内容看完。",
+    "互动倾向": "这个角色是否可能点赞、评论、收藏或停留互动。",
+    "转化倾向": "这个角色是否可能点击购买、咨询、报名或进入下一步。",
+    "信任度": "这个角色对内容承诺、证据和表达方式的信任程度。",
+    "推荐倾向": "这个角色是否愿意转发给别人或口头推荐。",
+    "读完意愿": "这个角色是否愿意把文案读完。",
+    "利益清晰度": "角色是否能快速理解这件事对自己有什么好处。",
+    "转化意愿": "角色是否愿意采取文案希望的下一步行动。",
+    "传播意愿": "角色是否愿意转发、分享或推荐。",
+    "必要性": "角色是否认为这件事值得做、值得推进。",
+    "可行性": "角色是否相信方案在资源、流程和执行上可落地。",
+    "完整性": "信息、路径、边界和反例是否足够完整。",
+    "风险可控性": "潜在风险是否被识别并有可执行的兜底。",
+    "推荐推进度": "角色是否建议继续推进。",
+    "可用性": "用户能不能顺利理解并完成主要任务。",
+    "一致性": "页面、文案、交互和预期是否前后一致。",
+    "视觉层级": "用户是否能分清主次、先看什么后看什么。",
+    "信息密度": "信息是否过载或过少,是否影响理解。",
+    "行动清晰度": "用户是否知道下一步该做什么、点哪里、会发生什么。",
+    "理解效率": "用户是否能在短时间内看懂卖点、规则或任务。",
+    "信任证据": "证据、评价、资质、规则是否足够支撑行动。",
+    "购买意愿": "用户是否愿意下单或进入购买链路。",
+    "价格清晰度": "价格、优惠、限制和后续费用是否清楚。",
+}
 
 
 def infer_layout(data: dict[str, Any]) -> str:
@@ -102,6 +163,15 @@ def render_table(rows: list[dict[str, Any]], *, limit: int | None = None) -> str
     return f"<div class=\"table-wrap\"><table><thead><tr>{head}</tr></thead><tbody>{''.join(body)}</tbody></table></div>"
 
 
+def scenario_label(data: dict[str, Any]) -> str:
+    scenario = data.get("summary", {}).get("scenario") or data.get("scenario") or ""
+    return SCENARIO_LABELS.get(str(scenario), str(scenario) or "评审")
+
+
+def observation_label(name: str) -> str:
+    return OBSERVATION_LABELS.get(name, name)
+
+
 def score_cell(value: Any) -> str:
     if not isinstance(value, (int, float)):
         return esc(value)
@@ -115,27 +185,88 @@ def score_cell(value: Any) -> str:
     )
 
 
+def score_band(value: Any) -> tuple[str, str]:
+    if not isinstance(value, (int, float)):
+        return "无法判断", "样本不足或未给出有效评分。"
+    if value < 3:
+        return "明显偏低", "需要优先处理,否则大概率卡在这一环。"
+    if value < 5:
+        return "偏弱", "有明确阻力,需要靠信息补充或表达调整拉回。"
+    if value < 7:
+        return "中等", "不是硬伤,但还不足以形成稳定正向判断。"
+    if value < 8.5:
+        return "较好", "多数角色能接受,可继续局部优化。"
+    return "强", "这一项对目标角色基本成立。"
+
+
 def render_score_rows(rows: list[dict[str, Any]]) -> str:
     if not rows:
         return '<p class="muted">暂无评分均值。</p>'
     body = []
     for row in rows:
+        band, meaning = score_band(row.get("均值"))
+        metric = row.get("指标")
         body.append(
             "<tr>"
-            f"<td>{esc(row.get('指标'))}</td>"
+            f"<td>{esc(metric)}</td>"
             f"<td>{score_cell(row.get('均值'))}</td>"
+            f"<td>{esc(band)}</td>"
+            f"<td>{esc(SCORE_MEANINGS.get(str(metric), meaning))}</td>"
             "</tr>"
         )
     return (
-        '<div class="table-wrap"><table><thead><tr><th>指标</th><th>均值</th></tr></thead>'
+        '<p class="score-note">评分是 0-10 的角色主观判断:'
+        "0-3 明显偏低,3-5 偏弱,5-7 中等,7-8.5 较好,8.5 以上强。"
+        "它不预测真实转化率,只表示这组陪审员的理解、信任和行动阻力。</p>"
+        '<div class="table-wrap"><table><thead><tr><th>指标</th><th>均值</th><th>判断</th><th>代表什么</th></tr></thead>'
         f"<tbody>{''.join(body)}</tbody></table></div>"
     )
 
 
 def render_summary(data: dict[str, Any]) -> str:
     summary = data.get("summary", {})
-    rows = [{"字段": key, "值": value} for key, value in summary.items()]
-    return f'<section class="card"><h2>评审概览</h2>{render_table(rows)}</section>'
+    rows = [
+        {"字段": "评审对象", "值": summary.get("artifact_type")},
+        {"字段": "目标人群", "值": summary.get("target_audience")},
+        {"字段": "关注问题", "值": summary.get("key_concern")},
+        {"字段": "参与角色数", "值": summary.get("participants")},
+    ]
+    return f'<section class="card"><h2>本次评审范围</h2>{render_table(rows)}</section>'
+
+
+def render_user_chips(data: dict[str, Any]) -> str:
+    summary = data.get("summary", {})
+    observations = data.get("observations", {})
+    chips = [
+        scenario_label(data),
+        f"{summary.get('participants', '—')} 位陪审员",
+    ]
+    artifact_type = summary.get("artifact_type")
+    target = summary.get("target_audience")
+    if artifact_type:
+        chips.append(str(artifact_type))
+    if target:
+        chips.append(str(target))
+    keyframe = observations.get("keyframe_extract") or {}
+    if keyframe.get("duration_sec"):
+        chips.append(f"{keyframe.get('duration_sec')} 秒")
+    if keyframe.get("platform"):
+        chips.append(str(keyframe.get("platform")))
+    return "".join(f'<span class="badge user">{esc(chip)}</span>' for chip in chips)
+
+
+def hero_description(data: dict[str, Any]) -> str:
+    summary = data.get("summary", {})
+    concern = summary.get("key_concern")
+    target = summary.get("target_audience")
+    parts = []
+    if target:
+        parts.append(f"面向 {target}")
+    if concern:
+        parts.append(f"重点看 {concern}")
+    if parts:
+        return "。".join(parts) + "。报告先给可执行修改顺序,再展开用户反馈、分析依据和评分解释。"
+    return "报告先给可执行修改顺序,再展开用户反馈、分析依据和评分解释。"
 
 
 def render_action_priorities(data: dict[str, Any]) -> str:
@@ -171,10 +302,17 @@ def render_action_priorities(data: dict[str, Any]) -> str:
 
 def render_modes(data: dict[str, Any]) -> str:
     rows = [
-        {"mode": item.get("mode"), "reason": item.get("reason")}
+        {"内部步骤": item.get("mode"), "触发原因": item.get("reason")}
         for item in data.get("plan", {}).get("dag", [])
     ]
-    return f'<section class="card"><h2>DAG 与 Mode 组合</h2>{render_table(rows)}</section>'
+    if not rows:
+        return ""
+    return (
+        '<details class="card"><summary>技术附录:执行步骤</summary>'
+        '<p class="small muted">以下内容用于审计本次 Skill 的执行过程,业务阅读可跳过。</p>'
+        f"{render_table(rows)}"
+        "</details>"
+    )
 
 
 def compact_observation(obs: dict[str, Any]) -> Any:
@@ -208,7 +346,7 @@ def render_media_artifacts(data: dict[str, Any]) -> str:
 def render_observations(data: dict[str, Any], layout: str) -> str:
     observations = data.get("observations", {})
     if not observations:
-        return '<section class="card"><h2>Observe 证据</h2><p class="muted">本次没有 observe 产物。</p></section>'
+        return '<section class="card"><h2>分析依据</h2><p class="muted">本次没有结构化分析依据。</p></section>'
 
     priority = []
     if layout in {"hci_first", "design_review"}:
@@ -227,15 +365,39 @@ def render_observations(data: dict[str, Any], layout: str) -> str:
         if name in observations and name not in names:
             names.append(name)
 
-    chunks = ['<section class="card soft"><h2>Observe 证据</h2>']
+    chunks = ['<section class="card soft"><h2>分析依据</h2>']
+    if layout == "video_review" and observations.get("keyframe_extract"):
+        keyframe = observations.get("keyframe_extract") or {}
+        rows = [
+            {
+                "时间点": f"{frame.get('ts_sec')}s",
+                "画面/元素": frame.get("description"),
+                "口播": frame.get("voiceover") or "无",
+            }
+            for frame in keyframe.get("key_frames", [])
+        ]
+        boundary = keyframe.get("boundary", {})
+        chunks.append(
+            '<p class="method-note">短视频评审基于提供的关键帧、口播和结构化素材理解内容。'
+            "本次没有解码完整视频文件,因此不会声称看到了未提供的画面。</p>"
+        )
+        chunks.append(render_table(rows))
+        if boundary:
+            chunks.append(
+                '<p class="small muted">边界:仅使用已提供关键帧/口播;缺失画面不会被脑补。</p>'
+            )
+        chunks.append("</section>")
+        return "".join(chunks)
+
     media = render_media_artifacts(data)
     if media:
         chunks.append(media)
     chunks.append('<div class="grid">')
     for name in names:
+        label = observation_label(name)
         chunks.append(
-            "<details open>"
-            f"<summary>{esc(name)}</summary>"
+            "<details>"
+            f"<summary>{esc(label)}</summary>"
             f"<pre>{esc(json.dumps(compact_observation(observations[name]), ensure_ascii=False, indent=2))}</pre>"
             "</details>"
         )
@@ -244,32 +406,7 @@ def render_observations(data: dict[str, Any], layout: str) -> str:
 
 
 def render_decision_lens(data: dict[str, Any]) -> str:
-    artifacts = data.get("artifacts", {})
-    rows = []
-    if artifacts.get("tension_bundle"):
-        rows.append(
-            {
-                "产物": "核心张力 bundle",
-                "状态": "等待宿主 Agent/模型提炼 dominant_tension",
-                "路径": artifacts.get("tension_bundle"),
-            }
-        )
-    if artifacts.get("paths_bundle"):
-        rows.append(
-            {
-                "产物": "双路径 bundle",
-                "状态": "等待宿主 Agent/模型生成 A/B 决策路径",
-                "路径": artifacts.get("paths_bundle"),
-            }
-        )
-    if not rows:
-        return ""
-    return (
-        '<section class="card" id="decision-lens"><h2>决策透镜</h2>'
-        '<p class="muted">本区展示 Phase C 张力/双路径产物的当前状态;最终路径仍由宿主 Agent/模型基于 bundle 生成。</p>'
-        f"{render_table(rows)}"
-        "</section>"
-    )
+    return ""
 
 
 def render_consensus(data: dict[str, Any]) -> str:
@@ -286,25 +423,33 @@ def render_consensus(data: dict[str, Any]) -> str:
             score_rows = section.get("table", [])
 
     return (
-        '<section class="card"><h2>陪审结果</h2>'
-        "<h3>共识卡点</h3>"
+        '<section class="card"><h2>用户反馈汇总</h2>'
+        "<h3>多人都卡住的地方</h3>"
         f"{render_table(consensus_rows)}"
-        "<h3>具体问题样例</h3>"
+        "<h3>逐人反馈样例</h3>"
         f"{render_table(complaint_rows, limit=12)}"
-        "<h3>评分均值</h3>"
-          f"{render_score_rows(score_rows)}"
+        "<h3>评分怎么读</h3>"
+        f"{render_score_rows(score_rows)}"
         "</section>"
     )
 
 
+def visible_boundary_text(item: str) -> str:
+    if "mock_llm_responder" in item:
+        return "本页是本地回归样例,陪审反馈由测试桩生成;正式使用时应由宿主 Agent/模型逐位回填。"
+    if "未使用 mock_llm_responder" in item:
+        return "陪审反馈来自宿主 Agent/模型回填,报告按这些独立反馈做聚合。"
+    if "bundle.participants" in item:
+        return "聚合结果以每位陪审员的独立反馈为准。"
+    return item
+
+
 def render_boundary(data: dict[str, Any], design_constraints: str) -> str:
     boundaries = data.get("boundaries", [])
-    items = "".join(f"<li>{esc(item)}</li>" for item in boundaries)
-    constraint_note = summarize_design_constraints(design_constraints)
+    items = "".join(f"<li>{esc(visible_boundary_text(item))}</li>" for item in boundaries)
     return (
-        '<section class="card boundary"><h2>边界声明</h2>'
+        '<section class="card boundary"><h2>方法与边界</h2>'
         f"<ul>{items}</ul>"
-        f'<p class="small muted">已应用内置报告风格约束: {esc(constraint_note.lstrip("# ").strip())}</p>'
         "</section>"
     )
 
@@ -320,30 +465,38 @@ def summarize_design_constraints(design_constraints: str) -> str:
         stripped = line.strip()
         if stripped.startswith("#"):
             return stripped.lstrip("# ").strip()
-    return "Spacex-Inspired-design-analysis"
+    return "JuryPersonas HTML 报告设计约束"
 
 
 def render_report(data: dict[str, Any], *, design_path: Path = DEFAULT_DESIGN) -> str:
     design_constraints = design_path.read_text(encoding="utf-8") if design_path.exists() else ""
     layout = infer_layout(data)
     title = data.get("title", "JuryPersonas 评审报告")
-    scenario = data.get("summary", {}).get("scenario") or "unknown"
-    modes = list_modes(data)
-    badges = "".join(f'<span class="badge">{esc(mode)}</span>' for mode in modes)
+    label = scenario_label(data)
+    badges = render_user_chips(data)
     html_body = [
         "<!doctype html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"/>",
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>",
-        f"<title>{esc(title)}</title><style>{css()}</style></head><body><main>",
+        f"<title>{esc(title)}</title><style>{css()}</style></head><body>",
+        '<header class="topbar"><div class="wrap topbar-inner">',
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '
+        'stroke-linecap="round" stroke-linejoin="round">'
+        '<path d="M3 6.5 12 3l9 3.5"/><path d="M3 6.5v11L12 21l9-3.5v-11"/>'
+        '<path d="M12 12v9"/><path d="m3 6.5 9 5.5 9-5.5"/></svg>',
+        '<span class="topbar-title">JuryPersonas</span>',
+        f'<span class="topbar-sub">{esc(label)}</span>',
+        "</div></header>",
+        '<main class="wrap">',
         '<section class="hero">',
         f"<h1>{esc(title)}</h1>",
-        f"<p>场景: {esc(scenario)} · 布局: {esc(layout)}</p>",
+        f"<p>{esc(hero_description(data))}</p>",
         '<div class="badges">',
         badges,
         "</div></section>",
-          render_action_priorities(data),
-          render_decision_lens(data),
-          render_consensus(data),
-          render_observations(data, layout),
+        render_action_priorities(data),
+        render_decision_lens(data),
+        render_consensus(data),
+        render_observations(data, layout),
         render_summary(data),
         render_modes(data),
         render_boundary(data, design_constraints),

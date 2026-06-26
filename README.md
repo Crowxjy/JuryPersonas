@@ -4,9 +4,9 @@
 
 ## 项目状态
 
-✅ **main 最新状态: v0.13 Skill runtime + DocxXML 飞书发布链路已对齐**(2026-06-25)
+✅ **当前本地状态: v0.14 契约修复 + Linear HTML 报告风格已对齐**(2026-06-25,待提交)
 
-当前主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。
+当前主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。当前本地回归覆盖 43 步,新增了陪审反应表格兼容解析、copy-extract 泛化抽取、ad-buyer 大知识库预算压缩和非 mock 报告声明检查。
 
 完整架构设计:[docs/architecture-v0.2.md](docs/architecture-v0.2.md)
 
@@ -52,7 +52,7 @@ python3 orchestrator/pipeline.py --brief-file tests/fixtures/prd_demo/brief.json
 - 新增场景 → 见 [scenarios/](scenarios/) 现有模板
 - 新增模式 → 见 [docs/architecture-v0.2.md §3.1](docs/architecture-v0.2.md)
 - 宿主 Agent/模型正式使用流 → 见 [docs/host-agent-workflow.md](docs/host-agent-workflow.md)
-- HTML 报告风格约束 → 见 [reporting/design.md](reporting/design.md)
+- HTML 报告执行约束 → 见 [reporting/design.md](reporting/design.md);当前视觉参考为 `/Users/bytedance/Downloads/linear`,[reporting/reference-design.md](reporting/reference-design.md) 仅保留历史 SpaceX-inspired 参考
 - 源仓迁移映射 → 见 [docs/migration-guide.md](docs/migration-guide.md)
 - 场景模式 cookbook → 见 [docs/mode-cookbook.md](docs/mode-cookbook.md)
 - 安装与运行依赖 → 见 [docs/install.md](docs/install.md)

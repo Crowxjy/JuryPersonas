@@ -27,6 +27,62 @@ LEVEL_PROMPTS = {
     "aware": "你只是听过这个名词,被深问会含糊带过或承认不熟。",
 }
 
+ARTIFACT_KNOWLEDGE_TERMS = {
+    "marketing-copy": [
+        "文案",
+        "素材",
+        "图文",
+        "标题",
+        "钩子",
+        "利益",
+        "转化",
+        "行动引导",
+        "价格",
+        "优惠",
+        "证据",
+        "承诺",
+        "虚假",
+        "夸大",
+        "功效",
+        "合规",
+        "红线",
+    ],
+    "short-video": [
+        "短视频",
+        "素材",
+        "视频",
+        "前3秒",
+        "前 3 秒",
+        "点击",
+        "转化",
+        "口播",
+        "字幕",
+        "信任",
+        "合规",
+        "审核",
+        "红线",
+    ],
+    "prd": [
+        "PRD", "产品", "需求", "指标", "口径", "流程", "成本", "ROI", "归因", "合规", "红线",
+    ],
+    "design": [
+        "设计", "界面", "页面", "信息架构", "操作", "转化", "信任", "合规", "红线",
+    ],
+    "screen": [
+        "设计", "界面", "页面", "信息架构", "操作", "转化", "信任", "合规", "红线",
+    ],
+    "detail-page": [
+        "详情页", "页面", "商品", "价格", "优惠", "信任", "评价", "转化", "合规", "红线",
+    ],
+    "product-card": [
+        "商品", "卡片", "价格", "优惠", "信任", "评价", "转化", "合规", "红线",
+    ],
+}
+
+ALWAYS_KEEP_KEYWORDS = ["红线", "禁止", "不得", "违规", "合规", "虚假", "夸大"]
+MAX_CONTEXTUAL_KNOWLEDGE_CHARS = 24000
+FULL_KNOWLEDGE_THRESHOLD_CHARS = 40000
+
 LEGACY_EXPERT_IMPORTS = {
     "product_expert": ["knowledge/slices/shared.md", "knowledge/slices/product_expert.md"],
     "ad_buyer": ["knowledge/slices/shared.md", "knowledge/slices/ad_buyer.md"],
@@ -106,7 +162,62 @@ def parse_frontmatter(content: str):
     return meta2, body
 
 
-def load_knowledge(import_paths, knowledge_level=None):
+def knowledge_keywords_for_context(context=None):
+    if not context:
+        return []
+    artifact_type = context.get("artifact_type") if isinstance(context, dict) else None
+    keywords = list(ARTIFACT_KNOWLEDGE_TERMS.get(str(artifact_type), []))
+    if artifact_type:
+        keywords.append(str(artifact_type))
+    if not keywords:
+        return []
+    for keyword in ALWAYS_KEEP_KEYWORDS:
+        if keyword not in keywords:
+            keywords.append(keyword)
+    return keywords
+
+
+def trim_knowledge_for_context(content: str, *, rel_path: str, keywords: list[str]) -> str:
+    """Budget very large generated slice files without turning trimming into judgement.
+
+    Small files stay intact. For oversized auto-generated knowledge bases, keep
+    slices that match the current artifact terms or universal compliance/red-line
+    terms. Unknown artifact types return the full file via empty keywords.
+    """
+    if not keywords or len(content) <= FULL_KNOWLEDGE_THRESHOLD_CHARS:
+        return content
+
+    lowered_keywords = [kw.lower() for kw in keywords]
+    selected: list[str] = []
+    selected_chars = 0
+    for line in content.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("- **["):
+            continue
+        haystack = stripped.lower()
+        if not any(keyword.lower() in haystack for keyword in lowered_keywords):
+            continue
+        selected.append(stripped)
+        selected_chars += len(stripped)
+        if selected_chars >= MAX_CONTEXTUAL_KNOWLEDGE_CHARS:
+            break
+
+    if not selected:
+        return (
+            f"> 已按场景裁剪大知识库 `{rel_path}`,未命中高相关切片;"
+            "以下为文件开头摘要。\n\n"
+            f"{content[:MAX_CONTEXTUAL_KNOWLEDGE_CHARS]}\n"
+        )
+
+    return (
+        f"> 已按当前场景裁剪大知识库 `{rel_path}`:"
+        f"保留 {len(selected)} 条高相关/红线切片,避免全量注入稀释判断。\n\n"
+        + "\n".join(selected)
+        + "\n"
+    )
+
+
+def load_knowledge(import_paths, knowledge_level=None, context=None):
     """读取 imports 列表中的所有共享知识文件。
 
     knowledge_level 选填:dict[rel_path -> level],level ∈
@@ -117,6 +228,7 @@ def load_knowledge(import_paths, knowledge_level=None):
     """
     chunks = []
     knowledge_level = knowledge_level or {}
+    keywords = knowledge_keywords_for_context(context)
     for rel_path in import_paths:
         full = SKILL_ROOT / rel_path
         if not full.exists():
@@ -124,6 +236,11 @@ def load_knowledge(import_paths, knowledge_level=None):
             continue
         with open(full, "r", encoding="utf-8") as f:
             content = f.read()
+        content = trim_knowledge_for_context(
+            content,
+            rel_path=rel_path,
+            keywords=keywords,
+        )
 
         level = knowledge_level.get(rel_path)
         level_hint = LEVEL_PROMPTS.get(level, "") if level else ""
@@ -180,7 +297,7 @@ def find_persona_path(role_id: str) -> Path:
     return matches[0]
 
 
-def compile_persona(role_id: str):
+def compile_persona(role_id: str, context=None):
     """主编译函数"""
     persona_path = find_persona_path(role_id)
 
@@ -195,7 +312,7 @@ def compile_persona(role_id: str):
     if not isinstance(knowledge_level, dict):
         knowledge_level = {}
     knowledge_text = (
-        load_knowledge(imports, knowledge_level) if imports else ""
+        load_knowledge(imports, knowledge_level, context=context) if imports else ""
     )
 
     system_prompt = f"""# 角色扮演任务

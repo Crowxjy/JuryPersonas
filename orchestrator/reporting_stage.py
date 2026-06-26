@@ -40,6 +40,12 @@ def build_generic_report_data(
         }
         for item in pack.get("complaints", [])[:12]
     ]
+    responder = str(bundle.get("responder") or "")
+    if responder.startswith("mock_llm_responder"):
+        reaction_boundary = "本报告由 mock_llm_responder 生成模拟陪审反应,用于验证 orchestrator e2e 链路。"
+    else:
+        reaction_boundary = "陪审反应由宿主 Agent/模型回填;本报告未使用 mock_llm_responder 模拟反应。"
+
     return {
         "title": f"陪审团评审报告 · {plan['scenario']['name']}",
         "summary": {
@@ -96,8 +102,8 @@ def build_generic_report_data(
             "score_matrix": pack.get("score_matrix", {}),
         },
         "boundaries": [
-            "本报告由 mock_llm_responder 生成模拟陪审反应,用于验证 orchestrator e2e 链路。",
-            "正式评审必须由宿主 Agent/模型回填 participants[*].reaction。",
+            reaction_boundary,
+            "正式评审链路以 bundle.participants[*].reaction 的实际回填内容为准。",
             "不预测转化率/点击率/完播率等绝对值,只输出风险、共识、分歧和路径建议。",
         ],
     }

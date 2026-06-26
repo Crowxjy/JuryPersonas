@@ -747,3 +747,9 @@ Agent 在每一轮收集后必须输出以下结构化判断（落 [.runtime/bri
     - ✅ `reporting/lark_renderer.py` 改为 lark-doc v2 创建语义:`docs +create --api-version v2 --doc-format xml|markdown --content ...`
     - ✅ `orchestrator/pipeline.py` 发布源从 Markdown 改为 `report_docx_xml`;默认仍 dry-run
     - ✅ `--lark-execute` 下发布失败提升为顶层 `PUBLISH_FAILED`,退出码非 0,不再 local fallback 或 fake URL
+  - **v0.2.24（2026-06-25）**：v0.14:契约修复 + Linear HTML 报告风格
+    - ✅ `jury-react` prompt 与 `aggregate-consensus` 解析契约对齐;聚合器同时兼容宿主 Agent 回填的 Markdown 字段表
+    - ✅ `copy-extract` 改为泛化识别价格、CTA、功效/稀缺风险表达,不把单条测试文案写入运行规则
+    - ✅ `ad-buyer` 大知识库仅在已知 artifact 类型下做保守预算压缩,避免 400KB+ system prompt 稀释判断
+    - ✅ HTML 报告风格切换为 `/Users/bytedance/Downloads/linear` 的 Linear 深色信息面板风格
+    - ✅ `tools/regression.py` 扩展到 43 步,覆盖表格解析、copy 抽取、prompt 体积和非 mock 边界声明

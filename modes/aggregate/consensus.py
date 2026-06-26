@@ -148,6 +148,18 @@ SCORE_METRICSETS: dict[str, list[str]] = {
 
 DEFAULT_SCORE_METRICS = ["理解意愿", "参与意愿", "行动意愿", "信任度", "推荐意愿"]
 
+COMPLAINT_FIELDS = ["所属人群", "关注点", "卡点位置", "可能流失原因", "改进建议"]
+SCHEMA_TABLE_HINTS = [
+    "8 选 1",
+    "8选1",
+    "字段名不能改",
+    "视频内时间点或元素",
+    "文档章节、页面区域",
+    "用你角色口吻",
+    "可执行的修改方向",
+    "你的 category + sub_category",
+]
+
 SCORE_ALIASES: dict[str, list[str]] = {
     "必要性": ["必要性", "价值必要性"],
     "可行性": ["可行性", "落地可行性"],
@@ -194,33 +206,95 @@ def normalize_position(raw: str, scenario: str | None = None) -> str:
     return raw.strip()
 
 
+def parse_markdown_table_fields(block: str) -> dict[str, str]:
+    """Parse a 2-column Markdown table whose first column is a complaint field."""
+    fields: dict[str, str] = {}
+    for raw_line in block.splitlines():
+        line = raw_line.strip()
+        if not (line.startswith("|") and line.endswith("|")):
+            continue
+        if re.fullmatch(r"\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?", line):
+            continue
+        cells = [cell.strip().strip("*") for cell in line.strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        label = cells[0].strip()
+        value = cells[1].strip()
+        if label in COMPLAINT_FIELDS and value:
+            fields[label] = value
+    return fields
+
+
+def looks_like_schema_table(fields: dict[str, str]) -> bool:
+    """Skip prompt/example tables that describe the schema instead of filling it."""
+    text = "\n".join(fields.values())
+    return any(hint in text for hint in SCHEMA_TABLE_HINTS)
+
+
+def parse_list_fields(block: str) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    for label in COMPLAINT_FIELDS:
+        pattern = rf"(?:^|\n)\s*(?:[-*]\s*)?(?:\*\*)?{re.escape(label)}(?:\*\*)?\s*[:：]\s*(.+)"
+        m = re.search(pattern, block)
+        if m:
+            fields[label] = m.group(1).strip()
+    return fields
+
+
+def build_complaint(fields: dict[str, str], participant: dict, scenario: str | None = None) -> dict | None:
+    item = {
+        "role_id": participant["role_id"],
+        "name": participant.get("name", participant["role_id"]),
+        "category": participant.get("category", ""),
+        "sub_category": participant.get("sub_category", ""),
+        "concern": fields.get("关注点", ""),
+        "position": fields.get("卡点位置", ""),
+        "reason": fields.get("可能流失原因", ""),
+        "fix": fields.get("改进建议", ""),
+    }
+    item["position_canonical"] = normalize_position(item["position"], scenario)
+    if item["concern"] and item["position"]:
+        return item
+    return None
+
+
 def parse_complaints(reaction_text: str, participant: dict, scenario: str | None = None) -> list[dict]:
-    """从 Markdown reaction 中抽取 5 字段卡点条目。"""
+    """从 Markdown reaction 中抽取 5 字段卡点条目。
+
+    主契约是 `#### 问题 N` + `- 字段: 值`。为兼容早期 prompt 和宿主
+    Agent 回填,也接受每个问题块里的 2 列 Markdown 字段表。
+    """
     out: list[dict] = []
     if not reaction_text:
         return out
-    # 切问题块: #### 问题 N
-    blocks = re.split(r"####\s*问题\s*\d+", reaction_text)
-    for blk in blocks[1:]:  # 第 0 段是问题表头之前的内容
-        # 字段抽取: "- 关注点: xxx"
-        def grab(label: str) -> str:
-            m = re.search(rf"-\s*{re.escape(label)}\s*[::]\s*(.+)", blk)
-            return m.group(1).strip() if m else ""
 
-        item = {
-            "role_id": participant["role_id"],
-            "name": participant.get("name", participant["role_id"]),
-            "category": participant.get("category", ""),
-            "sub_category": participant.get("sub_category", ""),
-            "concern": grab("关注点"),
-            "position": grab("卡点位置"),
-            "reason": grab("可能流失原因"),
-            "fix": grab("改进建议"),
-        }
-        item["position_canonical"] = normalize_position(item["position"], scenario)
-        # 至少要有 concern 和 position 才算有效条目
-        if item["concern"] and item["position"]:
-            out.append(item)
+    blocks = re.split(r"(?:^|\n)#{2,6}\s*问题\s*\d+[^\n]*\n?", reaction_text)
+    candidate_blocks = blocks[1:] if len(blocks) > 1 else []
+    for block in candidate_blocks:
+        fields = parse_list_fields(block) or parse_markdown_table_fields(block)
+        if fields and not looks_like_schema_table(fields):
+            item = build_complaint(fields, participant, scenario)
+            if item:
+                out.append(item)
+
+    if out:
+        return out
+
+    # Fallback: some host Agents output three standalone Markdown tables without
+    # `#### 问题 N` headings. Parse consecutive table groups as individual issues.
+    table_lines: list[str] = []
+    for line in reaction_text.splitlines() + [""]:
+        stripped = line.strip()
+        if stripped.startswith("|") and stripped.endswith("|"):
+            table_lines.append(stripped)
+            continue
+        if table_lines:
+            fields = parse_markdown_table_fields("\n".join(table_lines))
+            if fields and not looks_like_schema_table(fields):
+                item = build_complaint(fields, participant, scenario)
+                if item:
+                    out.append(item)
+            table_lines = []
     return out
 
 

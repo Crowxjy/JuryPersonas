@@ -119,6 +119,17 @@ def parse_json_stdout(step: dict[str, Any]) -> dict[str, Any]:
     return json.loads(text)
 
 
+def record_check(name: str, **details: Any) -> dict[str, Any]:
+    return {
+        "name": name,
+        "status": "OK",
+        "exit_code": 0,
+        "stdout": "(in-process check)",
+        "stderr": "(in-process check)",
+        "details": details,
+    }
+
+
 def check_no_python_cache() -> list[str]:
     matches = []
     for pattern in ("__pycache__", "*.pyc", ".pytest_cache", "test_write_perm.tmp"):
@@ -239,6 +250,124 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
                 '"top_increase"',
                 '"no_real_effect_claim_without_feedback_data": true',
             ],
+        )
+    )
+
+    copy_probe_path = runtime_root / "copy_extract_probe.md"
+    copy_probe_path.write_text(
+        "新客体验价 19.9。\n点开主页置顶领取体验券。\n轻松瘦身承诺不反弹。错过今天名额就没有了。",
+        encoding="utf-8",
+    )
+    steps.append(
+        run_cmd(
+            "copy_extract_probe",
+            [
+                sys.executable,
+                "modes/observe/copy_extract.py",
+                "--input",
+                str(copy_probe_path),
+                "--pretty",
+            ],
+            runtime_root=runtime_root,
+            check_stdout_contains=[
+                '"n_price_mentions": 1',
+                '"n_cta_candidates": 1',
+                '"n_risk_words": 2',
+            ],
+        )
+    )
+
+    table_bundle_path = runtime_root / "table_reaction_bundle.json"
+    table_bundle_path.write_text(
+        json.dumps(
+            {
+                "mode": "mode/jury-react",
+                "session_id": "regression-table-reaction",
+                "scenario": "review-marketing-copy",
+                "participants": [
+                    {
+                        "role_id": "p1",
+                        "name": "陪审员一",
+                        "sub_category": "消费者",
+                        "reaction": (
+                            "### 3) 我发现的至少 3 个具体问题\n\n"
+                            "#### 问题 1\n"
+                            "| 字段 | 内容 |\n|---|---|\n"
+                            "| 所属人群 | 消费者 |\n"
+                            "| 关注点 | 转化阻力 |\n"
+                            "| 卡点位置 | 主页领取路径 |\n"
+                            "| 可能流失原因 | 我不确定进主页后能不能马上找到入口。 |\n"
+                            "| 改进建议 | 直接说明主页置顶笔记或领取路径。 |\n\n"
+                            "#### 问题 2\n"
+                            "| 字段 | 内容 |\n|---|---|\n"
+                            "| 所属人群 | 消费者 |\n"
+                            "| 关注点 | 信任感 |\n"
+                            "| 卡点位置 | 限时名额催促 |\n"
+                            "| 可能流失原因 | 这句话像催促,让我怀疑是不是套路。 |\n"
+                            "| 改进建议 | 改成明确截止时间和名额。 |\n\n"
+                            "#### 问题 3\n"
+                            "| 字段 | 内容 |\n|---|---|\n"
+                            "| 所属人群 | 消费者 |\n"
+                            "| 关注点 | 信息缺失 |\n"
+                            "| 卡点位置 | 新客体验价 19.9 |\n"
+                            "| 可能流失原因 | 不知道后续价格和续费规则。 |\n"
+                            "| 改进建议 | 补充首月后价格。 |\n\n"
+                            "### 5) 我的真实行为/判断(0-10 量化)\n"
+                            "- 读完意愿: 5/10\n- 利益清晰度: 4/10\n"
+                            "- 信任感: 3/10\n- 转化意愿: 3/10\n- 传播意愿: 2/10\n"
+                        ),
+                    },
+                    {
+                        "role_id": "p2",
+                        "name": "陪审员二",
+                        "sub_category": "投手",
+                        "reaction": (
+                            "#### 问题 1\n"
+                            "| 字段 | 内容 |\n|---|---|\n"
+                            "| 所属人群 | 投手 |\n"
+                            "| 关注点 | 转化阻力 |\n"
+                            "| 卡点位置 | 主页领取路径 |\n"
+                            "| 可能流失原因 | CTA 不闭环,链路多一步会掉人。 |\n"
+                            "| 改进建议 | 写清楚点击后看到什么。 |\n\n"
+                            "#### 问题 2\n"
+                            "| 字段 | 内容 |\n|---|---|\n"
+                            "| 所属人群 | 投手 |\n"
+                            "| 关注点 | 合规红线 |\n"
+                            "| 卡点位置 | 限时名额催促 |\n"
+                            "| 可能流失原因 | 稀缺性表达太重,容易像诱导。 |\n"
+                            "| 改进建议 | 用真实活动期限替代恐吓式话术。 |\n\n"
+                            "#### 问题 3\n"
+                            "| 字段 | 内容 |\n|---|---|\n"
+                            "| 所属人群 | 投手 |\n"
+                            "| 关注点 | 理解成本 |\n"
+                            "| 卡点位置 | 效果承诺 |\n"
+                            "| 可能流失原因 | 功效暗示太直,缺少边界。 |\n"
+                            "| 改进建议 | 改成体验描述,避免效果承诺。 |\n\n"
+                            "### 5) 我的真实行为/判断(0-10 量化)\n"
+                            "- 读完意愿: 5/10\n- 利益清晰度: 4/10\n"
+                            "- 信任感: 3/10\n- 转化意愿: 3/10\n- 传播意愿: 2/10\n"
+                        ),
+                    },
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    steps.append(
+        run_cmd(
+            "aggregate_table_reaction_contract",
+            [
+                sys.executable,
+                "modes/aggregate/consensus.py",
+                "--bundle-file",
+                str(table_bundle_path),
+                "--output",
+                str(runtime_root / "table_reaction_consensus.json"),
+            ],
+            runtime_root=runtime_root,
+            check_stdout_contains=["complaints=6", "consensus=2", "divergence=2"],
         )
     )
 
@@ -366,6 +495,21 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
             ],
         )
     )
+    dag_bundle = json.loads(
+        (
+            dag_stage_observe_runtime
+            / "reactions"
+            / "20260625-dag-stage-demo.bundle.json"
+        ).read_text(encoding="utf-8")
+    )
+    ad_prompt_chars = next(
+        len(p.get("system_prompt") or "")
+        for p in dag_bundle["participants"]
+        if p["role_id"] == "ad-buyer"
+    )
+    if ad_prompt_chars >= 120_000:
+        raise StepFailed(f"ad-buyer prompt too large after contextual trim: {ad_prompt_chars}")
+    steps.append(record_check("ad_buyer_contextual_prompt_trim", chars=ad_prompt_chars))
 
     dag_stage_runtime = runtime_root / "dag_stage_full"
     steps.append(
@@ -776,6 +920,45 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
             ],
         )
     )
+    non_mock_filled_path = handoff_runtime / "reactions" / "20260624-v04-prd-demo.non_mock.filled.json"
+    non_mock_bundle = json.loads(filled_path.read_text(encoding="utf-8"))
+    non_mock_bundle.pop("responder", None)
+    non_mock_filled_path.write_text(
+        json.dumps(non_mock_bundle, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    non_mock_resume_runtime = runtime_root / "handoff_resume_non_mock"
+    steps.append(
+        run_cmd(
+            "handoff_resume_non_mock_boundary",
+            [
+                sys.executable,
+                "orchestrator/pipeline.py",
+                "--brief-file",
+                "tests/fixtures/prd_demo/brief.json",
+                "--execute",
+                "--filled-bundle-file",
+                str(non_mock_filled_path),
+                "--runtime-dir",
+                str(non_mock_resume_runtime),
+            ],
+            runtime_root=runtime_root,
+            check_stdout_contains=['"status": "OK"', "report_html"],
+        )
+    )
+    non_mock_report_data = json.loads(
+        (
+            non_mock_resume_runtime
+            / "reports"
+            / "20260624-v04-prd-demo.report_data.json"
+        ).read_text(encoding="utf-8")
+    )
+    boundary_text = "\n".join(non_mock_report_data.get("boundaries", []))
+    if "本报告由 mock_llm_responder 生成模拟陪审反应" in boundary_text:
+        raise StepFailed("non-mock resume report still contains mock boundary")
+    if "未使用 mock_llm_responder" not in boundary_text:
+        raise StepFailed("non-mock resume report missing non-mock boundary")
+    steps.append(record_check("non_mock_boundary_statement", boundary="ok"))
 
     steps.append(
         run_cmd(
