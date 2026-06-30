@@ -40,3 +40,7 @@ personas/_ephemeral/
 assets/msinet_tf/*
 !assets/msinet_tf/.gitkeep
 !assets/msinet_tf/README_model_weights.md
+
+# Local-only presentation/report pages (not part of the skill runtime)
+docs/pipeline-overview.html
+docs/project-structure.html
