@@ -1,6 +1,6 @@
 # JuryPersonas HTML 报告设计约束
 
-本文件是报告渲染器的内置执行约束说明。HTML 报告视觉参考 `/Users/bytedance/Downloads/linear`,采用 Linear 深色信息面板风格;`reporting/reference-design.md` 仅保留历史 SpaceX-inspired 视觉资产参考,不得覆盖本文件。
+本文件是报告渲染器的内置执行约束说明。HTML 报告视觉参考为 Linear 风格,采用 Linear 深色信息面板风格;`reporting/reference-design.md` 仅保留历史 SpaceX-inspired 视觉资产参考,不得覆盖本文件。
 
 ## 设计目标
 
@@ -13,7 +13,7 @@
 
 ## 视觉风格
 
-- 参考:以 `/Users/bytedance/Downloads/linear/design-linear.md` 和 `linear_template.html` 为视觉基准。
+- 参考:以 Linear 风格(深色信息面板、克制配色、等宽数字)为视觉基准。
 - 字体:系统无衬线栈,中文优先;数字、mode badge、代码与日志使用等宽栈。
 - 页面宽度:最大约 920px,居中,左右留白 24px;内容密度服务决策阅读,不做营销页大屏 hero。
 - 背景:Linear 深色基底 `#08090a`,面板使用 `#141517` / `#191b1e`,细线使用 `#232629` / `#1c1e21`。

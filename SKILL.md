@@ -1,6 +1,6 @@
 ---
 name: jury-personas
-description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短视频/详情页/营销文案做评审时使用本 Skill。先通过 Brief Workshop 收集需求(评估对象、目标受众、关心维度、是否有真实分布),再按场景推荐原子模式 DAG(客观度量/陪审反应/聚合/张力归纳/报告渲染),最后优先产出场景/Mode 自适应 HTML 报告,并保留 Markdown/DocxXML;飞书发布默认 dry-run,显式 --lark-execute 时用 DocxXML 走 lark-doc v2 创建。陪审团由专家画像 + 消费者画像 + BD/管理者画像组成,支持手写/切片自动构建/临时拟合/分布采样四种生成方式。触发词:陪审、评审、Jury、流失评审、短视频评审、PRD 评审、设计评审、群体评审、用户视角评审。
+description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短视频/详情页/营销文案做评审时使用本 Skill。先通过 Brief Workshop 收集需求(评估对象、目标受众、关心维度、是否有真实分布),再按场景推荐原子模式 DAG(客观度量/陪审反应/聚合/张力归纳/报告渲染),最后优先产出场景/Mode 自适应 HTML 报告,并保留 Markdown/DocxXML;飞书发布默认 dry-run,显式 --lark-execute 时用 DocxXML 走 lark-doc v2 创建。陪审团由专家画像 + 消费者画像 + BD/管理者画像组成,支持手写/切片自动构建/临时拟合/分布采样四种生成方式;专家经 method_lens 挂载方法卡与确定性工具。触发词:陪审、评审、Jury、流失评审、短视频评审、PRD 评审、设计评审、群体评审、用户视角评审。
 ---
 
 # Jury Personas · 陪审团画像 Skill
@@ -12,34 +12,34 @@ description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短
 | 组件 | 目录 | 作用 |
 |---|---|---|
 | ① **需求 Brief** | `brief/` + `core/contracts/brief.schema.json` | 调用前先收集足够信息,防止幻觉编造 |
-| ② **知识 Knowledge** | `knowledge/` | 行业知识 + 术语 + 切片标注库,跨画像共享 |
-| ③ **画像 Persona** | `personas/` | 陪审员画像(专家/消费者/BD)+ 临时拟合 |
+| ② **知识 Knowledge** | `knowledge/` | 行业知识 + 术语 + 切片标注库 + 方法卡(可挂确定性工具),跨画像共享 |
+| ③ **画像 Persona** | `personas/` | 陪审员画像(专家/消费者/BD)+ 临时拟合;专家经 `method_lens` 挂方法 |
 | ④ **场景 Scenario** | `scenarios/` | 评估对象的评审 SOP,声明可用模式列表 |
 | ⑤ **模式 Mode** | `modes/` | 原子能力,按场景 DAG 组合调用 |
 
 ## 二、原子模式清单
 
-| 模式 | MVP | 输入 | 输出 |
-|---|---|---|---|
-| `mode/heatmap` | ✅ v0.11 A 档 execute,B 档可选 | 截图 | 注意力热力图 + HCI 指标 |
-| `mode/cross-page` | ✅ v0.11 execute(有 ≥2 metrics 时) | 多张截图 | 跨页面动线 |
-| `mode/annotate-issues` | ✅ v0.11 execute | 截图 + semantic.json + issues.json | 页面问题红框标注图 |
-| `mode/keyframe-extract` | ✅ v0.15 | 已提供关键帧 JSON / storyboard / `tools/video_evidence` 真实抽帧 artifact | 规范化关键帧 + 时序切片;排除 `observed:false` 推断帧 |
-| `mode/prd-extract` | ✅ v0.6 | PRD Markdown/文本 | 结构化标题/需求/风险/指标/待确认 |
-| `mode/copy-extract` | ✅ v0.6 | 营销文案 Markdown/文本 | 结构/利益点/证据/CTA/风险词/渠道线索 |
-| `mode/design-extract` | ✅ v0.7 | 设计稿 Markdown/文本/JSON 描述 | 页面结构/CTA/信任证据/缺失字段 |
-| `mode/screen-extract` | ✅ v0.7 | 单/多界面 Markdown/文本/JSON 描述 | 页面结构/流程规则/行动点/风险词 |
-| `mode/detail-page-extract` | ✅ v0.7 | 详情页 Markdown/文本/JSON 描述 | 价格权益/规则/信任证据/CTA |
-| `mode/product-card-extract` | ✅ v0.7 | 商品卡 Markdown/文本/JSON 描述 | 字段结构/价格优惠/证明/CTA |
-| `mode/persona-fit` | ✅ v0.11 execute | 切片+标签 JSON | 临时画像 |
-| `mode/persona-sample` | ✅ v0.11 execute | 联合分布 | N 个采样陪审员 |
-| `mode/persona-pick` | ✅ v0.6 | 角色 ID 列表 | 指定陪审员 + system_prompt 包 |
-| `mode/jury-react` | ✅ MVP | 陪审员清单 + 待评对象 | 各陪审员独立陈述 |
-| `mode/aggregate-consensus` | ✅ MVP | reactions[] | 共识/分歧/流失点热力 |
-| `mode/aggregate-distribution-gap` | ✅ v0.11 execute | reactions[] + 双分布 | F6 双分布 gap |
-| `mode/synthesize-tension` | v0.3 | 分歧[] | 核心张力 + 决策偏好因子 |
-| `mode/synthesize-paths` | v0.3 | 张力 + 偏好因子 | 🅰/🅑 双决策路径 |
-| `mode/render-report` | ✅ v0.13 | 全部产物 | HTML 优先 + Markdown/DocxXML + lark-doc v2 发布预览/创建 |
+| 模式 | 输入 | 输出 |
+|---|---|---|
+| `mode/heatmap` | 截图 | 注意力热力图 + HCI 指标 |
+| `mode/cross-page` | 多张截图 | 跨页面动线 |
+| `mode/annotate-issues` | 截图 + semantic.json + issues.json | 页面问题红框标注图 |
+| `mode/keyframe-extract` | 关键帧 JSON / storyboard / `tools/video_evidence` 真实抽帧 artifact | 规范化关键帧 + 时序切片;排除 `observed:false` 推断帧 |
+| `mode/prd-extract` | PRD Markdown/文本 | 结构化标题/需求/风险/指标/待确认 |
+| `mode/copy-extract` | 营销文案 Markdown/文本 | 结构/利益点/证据/CTA/风险词/渠道线索 |
+| `mode/design-extract` | 设计稿 Markdown/文本/JSON 描述 | 页面结构/CTA/信任证据/缺失字段 |
+| `mode/screen-extract` | 单/多界面 Markdown/文本/JSON 描述 | 页面结构/流程规则/行动点/风险词 |
+| `mode/detail-page-extract` | 详情页 Markdown/文本/JSON 描述 | 价格权益/规则/信任证据/CTA |
+| `mode/product-card-extract` | 商品卡 Markdown/文本/JSON 描述 | 字段结构/价格优惠/证明/CTA |
+| `mode/persona-fit` | 切片+标签 JSON | 临时画像 |
+| `mode/persona-sample` | 联合分布 | N 个采样陪审员 |
+| `mode/persona-pick` | 角色 ID 列表 | 指定陪审员 + system_prompt 包(含方法卡注入) |
+| `mode/jury-react` | 陪审员清单 + 待评对象 | 各陪审员独立陈述 |
+| `mode/aggregate-consensus` | reactions[] | 共识/分歧/流失点热力 |
+| `mode/aggregate-distribution-gap` | reactions[] + 双分布 | 双分布 gap |
+| `mode/synthesize-tension` | 分歧[] | 核心张力 + 决策偏好因子 |
+| `mode/synthesize-paths` | 张力 + 偏好因子 | 🅰/🅑 双决策路径 |
+| `mode/render-report` | 全部产物 | HTML 优先 + Markdown/DocxXML + lark-doc v2 发布预览/创建 |
 
 ## 三、当前真实入口
 
@@ -104,48 +104,7 @@ orchestrator 会回查 evidence 是否在用户上下文可匹配,**杜绝伪造
 6. 圆桌阶段每个陪审员**独立陈述**,不互相参考
 7. 主持人**只汇总不裁决**,Phase C 给🅰/🅑 双路径不替选
 
-## 六、当前交付状态
-
-| 模块 | 状态 |
-|---|---|
-| 项目骨架 | ✅ |
-| Brief Harness 契约 | ✅ |
-| EAgents 迁入 (personas/knowledge/scenarios/modes) | ✅ M1 |
-| 专家画像 (product/ad-buyer/local-business) | ✅ M1.5/v0.3 |
-| 共享切片库 + 三专家切片库 | ✅ v0.3 |
-| Brief Workshop + Inferrer + Validator | ✅ M2 |
-| Orchestrator (scenario DAG 调度 + --execute) | ✅ v0.13 |
-| mode/jury-react + mode/aggregate-consensus + mode/render-report | ✅ M3 |
-| 飞书报告渲染(lark_renderer.py,DocxXML + lark-doc v2;默认 dry-run,真发布失败显式报错) | ✅ v0.13 |
-| 顶层入口 jury_review.py | ✅ M3 |
-| 多场景端到端回归(PRD/设计/界面/短视频/详情页/商品卡/营销文案/HCI) | ✅ v0.13 |
-| expert-roundtable references 镜像 | ✅ v0.3 |
-| HCI observe 脚本(heatmap/cross-page/annotate-issues) | ✅ v0.11 execute 接入 |
-| Phase C 决策透镜 prompt + synthesize bundle | ✅ v0.3 |
-| 画像 fingerprint 去重报告(persona_dedupe.py) | ✅ v0.4 起步 |
-| PRD/设计稿/单界面场景 DAG plan | ✅ v0.4 起步 |
-| 详情页/商品卡/营销文案场景 DAG plan | ✅ v0.5 起步 |
-| 通用 Markdown renderer | ✅ v0.5 起步 |
-| persona-pick / prd-extract / keyframe-extract 脚本 | ✅ v0.6 起步 |
-| Orchestrator observe/persona/synthesize execute 链路 | ✅ v0.6 起步 |
-| 营销文案 copy-extract + e2e 回归 | ✅ v0.6 |
-| 设计稿/单界面/详情页/商品卡 observe + e2e 回归 | ✅ v0.7 |
-| 宿主 Agent/模型 reaction 回填恢复执行(--filled-bundle-file) | ✅ v0.6 起步 |
-| 宿主 Agent/模型 handoff 工具(reaction_handoff.py) | ✅ v0.6 起步 |
-| 宿主 Agent/模型正式使用流(host-agent-workflow.md) | ✅ v0.7 |
-| 场景默认陪审团组合 | ✅ v0.12 |
-| 回填链路关键节点诊断日志(stderr) | ✅ v0.6 起步 |
-| 本地全链路回归 runner(regression.py) | ✅ v0.6 起步 |
-| 真实评测集工程骨架(evals + evaluation_runner.py) | ✅ v0.8 起步 |
-| ad-buyer 统一画像与合并决策包 | ✅ v0.9 |
-| 源仓审计计划收口 + 迁移/模式文档 | ✅ v0.10 起步 |
-| aggregate-distribution-gap 独立实现 + 回归 | ✅ v0.10 |
-| persona-fit/persona-sample/distribution-gap/HCI execute 收尾 | ✅ v0.11 |
-| HTML 优先动态报告 + design.md 风格约束 + DocxXML | ✅ v0.13 |
-| 场景配置单一事实源(default_personas/artifact_aliases/DAG required modes) | ✅ v0.12 |
-| DocxXML 飞书发布链路(--lark-execute 真创建,失败不伪降级) | ✅ v0.13 |
-
-## 七、Quickstart
+## 六、Quickstart
 
 ```bash
 # 一条命令贯穿 brief → DAG → 模式 → 报告
@@ -222,10 +181,11 @@ python3 tools/regression.py \
 
 ⚠️ 本地回归默认走 `mock_llm_responder` 测试桩;正式使用时由宿主 Agent/模型回填 reaction。
 
-## 八、对齐设计文档
+## 七、对齐设计文档
 
 - 完整架构: [docs/architecture-v0.2.md](docs/architecture-v0.2.md)
 - 宿主 Agent/模型使用流: [docs/host-agent-workflow.md](docs/host-agent-workflow.md)
+- 专家方法/工具维度(method_lens + 方法卡 + 确定性工具): [docs/expert-method-tool-dimension.md](docs/expert-method-tool-dimension.md)
 - 真实评测集: [evals/README.md](evals/README.md)
 - 画像合并决策包: [docs/persona-merge-decision.md](docs/persona-merge-decision.md)
 - 运行依赖与可选资产: [docs/runtime-assets.md](docs/runtime-assets.md)

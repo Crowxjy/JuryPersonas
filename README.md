@@ -2,11 +2,9 @@
 
 > 陪审团画像 Skill —— 把 EAgents(消费者群体流失评审)与 expert-roundtable(专家深度评审 + HCI 客观度量)合并为一个**面向 PM/设计/内容/运营的通用陪审团 Skill**。
 
-## 项目状态
+## 概览
 
-✅ **当前本地状态: v0.15 真实视频证据流水线已接入**(2026-06-26,待提交)
-
-当前主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。当前本地回归覆盖 47 步;短视频可选使用 `tools/video_evidence/` 取真实 `play_addr`、下载视频、等距抽帧、抽音与 ASR,并把真实帧转成 `observed:true` artifact。
+主链路支持 PRD、设计稿、单/多界面、短视频、详情页、商品卡、营销文案等场景的 Brief → DAG → observe/persona/jury-react → aggregate/synthesize → HTML/Markdown/DocxXML 报告。场景配置以 `scenarios/review-*.md` 为单一事实源;飞书发布默认 dry-run,传 `--lark-execute` 时使用 DocxXML 走 lark-doc v2 真创建,失败不会伪降级。专家画像经 `method_lens` 挂载方法卡(部分方法附确定性工具,如盈亏平衡计算)。短视频可选使用 `tools/video_evidence/` 取真实 `play_addr`、下载视频、等距抽帧、抽音与 ASR,并把真实帧转成 `observed:true` artifact。
 
 完整架构设计:[docs/architecture-v0.2.md](docs/architecture-v0.2.md)
 
@@ -15,10 +13,10 @@
 | 组件 | 目录 | 说明 |
 |---|---|---|
 | ① 需求 Brief | `brief/` | 调用前必经的需求收集与充分性判定 |
-| ② 知识 Knowledge | `knowledge/` | 双源:手写行业知识 + 切片标注库 |
-| ③ 画像 Persona | `personas/` | 四种生成方式:handcraft / slice-built / fit / pool |
+| ② 知识 Knowledge | `knowledge/` | 行业知识 + 术语 + 切片标注库 + 方法卡(可挂确定性工具) |
+| ③ 画像 Persona | `personas/` | 四种生成方式:handcraft / slice-built / fit / pool;专家经 `method_lens` 挂方法 |
 | ④ 场景 Scenario | `scenarios/` | 评估对象的评审 SOP,声明可用模式 |
-| ⑤ 模式 Mode | `modes/` | 19 个原子能力,按场景 DAG 组合 |
+| ⑤ 模式 Mode | `modes/` | 原子能力,按场景 DAG 组合 |
 
 ## 快速使用(当前真实入口)
 
@@ -61,9 +59,10 @@ bash tools/video_evidence/run_douyin_realframe_pipeline.sh
 - 增删画像 → 见 [personas/_template.md](personas/_template.md)
 - 新增场景 → 见 [scenarios/](scenarios/) 现有模板
 - 新增模式 → 见 [docs/architecture-v0.2.md §3.1](docs/architecture-v0.2.md)
+- 专家方法/工具维度(method_lens + 方法卡 + 确定性工具) → 见 [docs/expert-method-tool-dimension.md](docs/expert-method-tool-dimension.md) 与 [knowledge/methods/README.md](knowledge/methods/README.md)
 - 宿主 Agent/模型正式使用流 → 见 [docs/host-agent-workflow.md](docs/host-agent-workflow.md)
 - 真实短视频证据流水线 → 见 [tools/video_evidence/README.md](tools/video_evidence/README.md)
-- HTML 报告执行约束 → 见 [reporting/design.md](reporting/design.md);当前视觉参考为 `/Users/bytedance/Downloads/linear`,[reporting/reference-design.md](reporting/reference-design.md) 仅保留历史 SpaceX-inspired 参考
+- HTML 报告执行约束 → 见 [reporting/design.md](reporting/design.md);当前视觉参考为 Linear 风格,[reporting/reference-design.md](reporting/reference-design.md) 仅保留历史 SpaceX-inspired 参考
 - 源仓迁移映射 → 见 [docs/migration-guide.md](docs/migration-guide.md)
 - 场景模式 cookbook → 见 [docs/mode-cookbook.md](docs/mode-cookbook.md)
 - 安装与运行依赖 → 见 [docs/install.md](docs/install.md)

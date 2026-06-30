@@ -751,7 +751,7 @@ Agent 在每一轮收集后必须输出以下结构化判断（落 [.runtime/bri
     - ✅ `jury-react` prompt 与 `aggregate-consensus` 解析契约对齐;聚合器同时兼容宿主 Agent 回填的 Markdown 字段表
     - ✅ `copy-extract` 改为泛化识别价格、CTA、功效/稀缺风险表达,不把单条测试文案写入运行规则
     - ✅ `ad-buyer` 大知识库仅在已知 artifact 类型下做保守预算压缩,避免 400KB+ system prompt 稀释判断
-    - ✅ HTML 报告风格切换为 `/Users/bytedance/Downloads/linear` 的 Linear 深色信息面板风格
+    - ✅ HTML 报告风格切换为 Linear 深色信息面板风格
     - ✅ `tools/regression.py` 扩展到 43 步,覆盖表格解析、copy 抽取、prompt 体积和非 mock 边界声明
   - **v0.2.25（2026-06-26）**：v0.15:真实短视频证据流水线
     - ✅ 新增 `tools/video_evidence/`,支持抖音 URL → real `play_addr` → mp4 → 等距抽帧 → 抽音 → ASR → `artifact.realframe.json`
