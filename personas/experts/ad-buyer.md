@@ -16,6 +16,10 @@ knowledge_level:
   knowledge/glossary/ad-terms.md: expert
   knowledge/slices/shared.md: proficient
   knowledge/slices/ad_buyer.md: expert
+method_lens:
+  primary: [funnel_diagnosis, roi_cpa_ecpm, compliance_redline_check]
+  secondary: [usability_walkthrough]
+  forbidden: [absolute_roi_prediction_without_data, legal_advice]
 source:
   kind: merged
   merged_from: ad-buyer-senior,ad-buyer-expert

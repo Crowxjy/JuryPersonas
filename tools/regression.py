@@ -64,6 +64,7 @@ def run_cmd(
     expect_code: int = 0,
     check_stdout_contains: list[str] | None = None,
     check_stderr_contains: list[str] | None = None,
+    extra_env: dict[str, str] | None = None,
     timeout: int = 120,
 ) -> dict[str, Any]:
     log_dir = runtime_root / "_logs"
@@ -73,6 +74,8 @@ def run_cmd(
 
     env = os.environ.copy()
     env["PYTHONDONTWRITEBYTECODE"] = "1"
+    if extra_env:
+        env.update(extra_env)
     proc = subprocess.run(
         cmd,
         cwd=SKILL_ROOT,
@@ -197,6 +200,135 @@ def run_regression(runtime_root: Path, *, keep_runtime: bool) -> dict[str, Any]:
                 '"ad-buyer-senior"',
                 '"ad-buyer"',
                 '"resolved_conflicts"',
+            ],
+        )
+    )
+    steps.append(
+        run_cmd(
+            "restaurant_method_lens_compile",
+            [
+                sys.executable,
+                "-B",
+                "modes/jury/compile_persona.py",
+                "restaurant-diagnosis-expert",
+                "--json",
+            ],
+            runtime_root=runtime_root,
+            check_stdout_contains=[
+                '"method_lens"',
+                '"break_even"',
+                '"group_buy_roi_check"',
+                "专家方法 / 工具镜头",
+                "visual_taste_judgement_without_trial",
+                "配套确定性工具",
+                "break_even_calc.py",
+            ],
+        )
+    )
+    restaurant_compiled = parse_json_stdout(steps[-1])
+    restaurant_prompt_chars = len(restaurant_compiled.get("system_prompt", ""))
+    if restaurant_prompt_chars >= 80_000:
+        raise StepFailed(
+            f"restaurant-diagnosis-expert prompt too large: {restaurant_prompt_chars}"
+        )
+    steps.append(
+        record_check(
+            "restaurant_method_lens_prompt_size",
+            chars=restaurant_prompt_chars,
+            methods=restaurant_compiled.get("method_lens", {}),
+        )
+    )
+
+    # break_even 确定性工具: 正常计算 + 缺毛利率拒算
+    be_case = runtime_root / "break_even_case.json"
+    be_case.write_text(
+        json.dumps(
+            {
+                "rent_monthly": 12000, "labor_monthly": 15000, "utility_monthly": 4500,
+                "gross_margin_pct": 60, "daily_revenue": 1500,
+                "one_time_capex": 80000, "amortize_months": 24,
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    steps.append(
+        run_cmd(
+            "break_even_tool_compute",
+            [sys.executable, "tools/methods/break_even_calc.py", "--input", str(be_case), "--pretty"],
+            runtime_root=runtime_root,
+            check_stdout_contains=[
+                '"status": "OK"',
+                '"break_even_daily_revenue": 1935.19',
+                '"gap_monthly": -13055.56',
+                '"status": "亏损"',
+                '"evidence_strength": null',
+            ],
+        )
+    )
+    be_refuse = runtime_root / "break_even_refuse.json"
+    be_refuse.write_text(
+        json.dumps({"rent_monthly": 12000, "labor_monthly": 15000, "utility_monthly": 4500}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    steps.append(
+        run_cmd(
+            "break_even_tool_refuses_without_margin",
+            [sys.executable, "tools/methods/break_even_calc.py", "--input", str(be_refuse), "--pretty"],
+            runtime_root=runtime_root,
+            check_stdout_contains=['"status": "REFUSED"', "没有毛利率就硬算"],
+        )
+    )
+
+    extra_personas = runtime_root / "extra_personas"
+    extra_personas.mkdir(parents=True, exist_ok=True)
+    (extra_personas / "method-missing-test.md").write_text(
+        """---
+id: method-missing-test
+name: 方法缺失测试角色
+category: 测试
+version: 0.0.0
+status: active
+method_lens:
+  primary: [missing_method_card]
+  forbidden: [unsafe_fake_method]
+---
+
+# 方法缺失测试角色
+
+## L1 身份背景
+测试角色。
+
+## L2 核心标签
+测试。
+
+## L3 心智层
+测试。
+
+## L4 行为层
+测试。
+
+## L5 知识层
+测试。
+""",
+        encoding="utf-8",
+    )
+    steps.append(
+        run_cmd(
+            "method_lens_missing_card_guard",
+            [
+                sys.executable,
+                "-B",
+                "modes/jury/compile_persona.py",
+                "method-missing-test",
+                "--json",
+            ],
+            runtime_root=runtime_root,
+            extra_env={"JURY_PERSONAS_EXTRA_PERSONA_DIRS": str(extra_personas)},
+            check_stdout_contains=[
+                "方法文件未找到: knowledge/methods/missing_method_card.md",
+                "unsafe_fake_method",
+                '"primary": []',
             ],
         )
     )

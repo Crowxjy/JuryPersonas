@@ -4,6 +4,10 @@ description: 本地服务商家角色(餐饮/酒旅/养生/家政等线下门店
 metadata:
   role: local_business
   knowledge_base: knowledge_base.md
+method_lens:
+  primary: [break_even, funnel_diagnosis, compliance_redline_check]
+  secondary: [store_traffic_audit, group_buy_roi_check, usability_walkthrough]
+  forbidden: [platform_algorithm_certainty_without_data, legal_advice]
 ---
 
 # 本地服务商家专家 (Local Business Expert)

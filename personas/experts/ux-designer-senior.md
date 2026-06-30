@@ -9,6 +9,10 @@ tags: [体验策略, 结构化思考, 证据驱动, 全流程把控, HMW, Journe
 imports:
   - knowledge/industry/ux-design-process.md
   - knowledge/glossary/ux-terms.md
+method_lens:
+  primary: [usability_walkthrough]
+  secondary: [funnel_diagnosis, compliance_redline_check]
+  forbidden: [visual_polish_only_judgement, user_research_claim_without_evidence]
 basic:
   age: 32
   gender: 女
