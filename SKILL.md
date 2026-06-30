@@ -17,6 +17,25 @@ description: 陪审团画像 Skill。当用户需要对 PRD/设计稿/界面/短
 | ④ **场景 Scenario** | `scenarios/` | 评估对象的评审 SOP,声明可用模式列表 |
 | ⑤ **模式 Mode** | `modes/` | 原子能力,按场景 DAG 组合调用 |
 
+### 顶层目录速览
+
+| 目录 | 作用 |
+|---|---|
+| `brief/` | 需求收集与充分性判定(组件①) |
+| `knowledge/` | 行业知识 / 术语 / 切片库 / 方法卡(组件②) |
+| `personas/` | 专家 / 消费者 / BD 陪审员画像(组件③) |
+| `scenarios/` | 各评估对象的评审 SOP,单一事实源(组件④) |
+| `modes/` | observe / jury / aggregate / synthesize / render 原子能力(组件⑤) |
+| `orchestrator/` | 编排:Brief → 场景/DAG 规划 → 分阶段执行 |
+| `reporting/` | 报告渲染:HTML 优先 + Markdown / DocxXML + 飞书发布 |
+| `tools/` | 回归 / 校验 / handoff / 方法工具 / 真实视频证据流水线 |
+| `core/` | JSON 契约与提示词(brief harness、Phase C) |
+| `evals/` | 真实对照评测集骨架 |
+| `assets/` | 可选模型权重(MSI-Net,按需下载) |
+| `docs/` | 架构与维护文档 |
+
+> 仅列顶层目录定位;文件级明细随代码演进,需要时用 `git ls-files` 现扫。
+
 ## 二、原子模式清单
 
 | 模式 | 输入 | 输出 |
