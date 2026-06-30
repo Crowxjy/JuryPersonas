@@ -134,7 +134,7 @@ MSI-Net 权重不是 Skill 主链路依赖。缺权重时,只影响 heatmap B �
 - `reporting/markdown_renderer.py`
 - `reporting/html_renderer.py`
 - `reporting/design.md` 报告执行约束;当前 HTML 视觉参考为 Linear 风格
-- `reporting/reference-design.md` 历史 SpaceX-inspired 视觉参考,不得替代执行约束
+- `reporting/reference-design-linear.md` Linear 风格结构化视觉参考资产,不得替代执行约束
 - `reporting/docx_xml_renderer.py`
 - `reporting/lark_renderer.py` 默认 dry-run 预览 lark-doc v2 创建命令;传 `--lark-execute` 时用 `report_docx_xml` 真创建飞书文档,失败不会返回伪 URL。
 

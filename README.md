@@ -62,7 +62,7 @@ bash tools/video_evidence/run_douyin_realframe_pipeline.sh
 - 专家方法/工具维度(method_lens + 方法卡 + 确定性工具) → 见 [docs/expert-method-tool-dimension.md](docs/expert-method-tool-dimension.md) 与 [knowledge/methods/README.md](knowledge/methods/README.md)
 - 宿主 Agent/模型正式使用流 → 见 [docs/host-agent-workflow.md](docs/host-agent-workflow.md)
 - 真实短视频证据流水线 → 见 [tools/video_evidence/README.md](tools/video_evidence/README.md)
-- HTML 报告执行约束 → 见 [reporting/design.md](reporting/design.md);当前视觉参考为 Linear 风格,[reporting/reference-design.md](reporting/reference-design.md) 仅保留历史 SpaceX-inspired 参考
+- HTML 报告执行约束 → 见 [reporting/design.md](reporting/design.md);结构化视觉参考(Linear 风格)见 [reporting/reference-design-linear.md](reporting/reference-design-linear.md)
 - 源仓迁移映射 → 见 [docs/migration-guide.md](docs/migration-guide.md)
 - 场景模式 cookbook → 见 [docs/mode-cookbook.md](docs/mode-cookbook.md)
 - 安装与运行依赖 → 见 [docs/install.md](docs/install.md)

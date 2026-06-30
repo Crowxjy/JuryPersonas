@@ -1,6 +1,6 @@
 # JuryPersonas HTML 报告设计约束
 
-本文件是报告渲染器的内置执行约束说明。HTML 报告视觉参考为 Linear 风格,采用 Linear 深色信息面板风格;`reporting/reference-design.md` 仅保留历史 SpaceX-inspired 视觉资产参考,不得覆盖本文件。
+本文件是报告渲染器的内置执行约束说明。HTML 报告采用 Linear 深色信息面板风格,结构化视觉参考见 `reporting/reference-design-linear.md`;当参考资产与本文件冲突时,以本文件为事实源。
 
 ## 设计目标
 
